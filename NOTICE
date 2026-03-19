@@ -1,0 +1,12 @@
+IX-Style
+Copyright 2026 Bryce Lovell
+
+This repository contains original software and documentation for IX-Style,
+an assured-autonomy and flight-software reference architecture focused on
+bounded autonomy, runtime assurance, fault management, degraded modes,
+auditable decision evidence, and verification-oriented system structure.
+
+Licensed under the Apache License, Version 2.0.
+
+This NOTICE file is provided for attribution and informational purposes
+only and does not modify the License.

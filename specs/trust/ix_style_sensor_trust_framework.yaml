@@ -1,0 +1,213 @@
+document:
+  id: IXS-SENSOR-TRUST-AND-ESTIMATION-FRAMEWORK
+  title: IX-Style Sensor Trust, Estimator Sanity, and Navigation Confidence Framework
+  status: draft
+  version: 0.1.0
+
+trust_domains:
+  - id: SENSOR_SOURCE_TRUST
+    description: Trust in a specific raw or preprocessed input source.
+  - id: DERIVED_STATE_TRUST
+    description: Trust in state inferred from one or more inputs.
+  - id: NAVIGATION_TRUST
+    description: Trust in the navigation picture used for position-sensitive behavior.
+  - id: TIMING_TRUST
+    description: Trust in timestamps, update cadence, and ordering validity.
+  - id: MESSAGE_TRUST
+    description: Trust in origin, integrity, and sequencing of messages.
+  - id: ACTUATOR_CONFIDENCE
+    description: Trust that commanded effect will occur as expected.
+  - id: ASSURANCE_CONFIDENCE
+    description: Trust in the guard, monitors, and evidence path.
+
+trust_states:
+  - id: TRUSTED
+    description: Acceptable for functions that depend on it.
+  - id: DEGRADED
+    description: Still usable for bounded purposes but behavior should narrow.
+  - id: SUSPECT
+    description: May be misleading; behavior should assume caution.
+  - id: UNTRUSTED
+    description: Must not be relied upon for trust-requiring functions.
+  - id: UNAVAILABLE
+    description: Absent or too stale to treat as present.
+
+trust_record_fields:
+  - trust_record_id
+  - trust_domain
+  - entity_id
+  - current_trust_state
+  - numeric_trust_score
+  - freshness_status
+  - plausibility_status
+  - cross_consistency_status
+  - timing_validity_status
+  - last_transition_timestamp
+  - transition_cause_codes
+  - rationale_summary
+  - degradation_persistence_status
+  - recovery_persistence_status
+
+check_families:
+  - id: FRESHNESS
+    checks:
+      - updated_recently_enough
+      - stale_for_function
+      - data_missing
+      - timing_invalid
+  - id: PLAUSIBILITY
+    checks:
+      - value_within_bounds
+      - rate_of_change_plausible
+      - posture_conditioned_plausibility
+  - id: CROSS_CONSISTENCY
+    checks:
+      - agrees_with_independent_sources
+      - subsystem_self_report_matches_observed_effect
+      - peer_measurement_support
+  - id: TEMPORAL_CONTINUITY
+    checks:
+      - continuous_evolution
+      - unsupported_state_jump
+      - oscillatory_behavior
+      - unstable_evolution
+  - id: INNOVATION_RESIDUAL
+    checks:
+      - innovation_nominal
+      - innovation_elevated
+      - innovation_divergent
+  - id: DIVERSITY_INDEPENDENCE
+    checks:
+      - independently_corroborated
+      - weak_diversity
+      - shared_assumption_dependence
+  - id: CONFIGURATION_INTEGRITY
+    checks:
+      - source_config_valid
+      - integrity_valid
+      - integrity_degraded
+      - integrity_failed
+
+trust_transition_rules:
+  - id: TRUST-RULE-001
+    statement: Trust may degrade faster than it recovers.
+  - id: TRUST-RULE-002
+    statement: Severe integrity failure may bypass gradual degradation.
+  - id: TRUST-RULE-003
+    statement: Trust loss propagates only to affected dependent functions.
+  - id: TRUST-RULE-004
+    statement: Derived-state trust depends on source trust.
+  - id: TRUST-RULE-005
+    statement: Recovery requires corroboration and persistence.
+
+estimator_sanity_states:
+  - id: ESTIMATOR_NOMINAL
+    description: Estimator behavior is sufficiently supported.
+  - id: ESTIMATOR_ELEVATED_UNCERTAINTY
+    description: Uncertainty is increased but bounded use may continue.
+  - id: ESTIMATOR_SUSPECT
+    description: Estimator may be misleading; strong narrowing required.
+  - id: ESTIMATOR_DIVERGENT
+    description: Estimator-dependent autonomy must be sharply reduced or blocked.
+  - id: ESTIMATOR_UNAVAILABLE
+    description: Estimator output is not acceptable for dependent functions.
+
+estimator_sanity_checks:
+  - innovation_residual_magnitude
+  - innovation_residual_persistence
+  - unsupported_state_jump_detection
+  - derivative_rate_plausibility
+  - uncertainty_trend_monitoring
+  - corroborating_measurement_consistency
+  - reset_reinitialization_tracking
+  - divergence_suspicion_flags
+
+navigation_trust_states:
+  - id: NAV_TRUSTED
+    description: Navigation picture is sufficiently corroborated for bounded use.
+  - id: NAV_DEGRADED
+    description: Navigation is weaker but may support reduced behavior.
+  - id: NAV_SUSPECT
+    description: Navigation may be misleading; strong caution required.
+  - id: NAV_UNTRUSTED
+    description: Navigation shall not support trust-requiring movement behavior.
+  - id: NAV_UNAVAILABLE
+    description: Navigation picture is absent or too stale to use.
+
+navigation_confidence_inputs:
+  - nav_source_freshness
+  - nav_continuity
+  - independent_corroboration
+  - estimator_navigation_consistency
+  - position_velocity_heading_plausibility
+  - spoof_suspected_discontinuity
+  - timing_validity
+  - source_diversity
+
+subsystem_self_report_checks:
+  - claimed_mode_matches_observed_behavior
+  - claimed_completion_matches_external_effect
+  - self_report_timing_expected
+  - self_report_consistent_with_authority_context
+
+trust_conditioned_behavior:
+  TRUSTED:
+    effects:
+      - normal_bounded_use
+  DEGRADED:
+    effects:
+      - narrower_envelopes
+      - increased_guard_scrutiny
+      - elevated_evidence_verbosity
+      - function_specific_derating
+  SUSPECT:
+    effects:
+      - containment_bias_increases
+      - dependent_autonomy_authority_narrows_sharply
+      - stronger_cross_check_requirements
+      - degraded_mode_entry_likely_for_critical_functions
+  UNTRUSTED:
+    effects:
+      - dependent_critical_actions_blocked_or_substituted
+      - mode_escalation_likely
+      - operator_visibility_elevated
+      - recovery_lockout_likely
+  UNAVAILABLE:
+    effects:
+      - treat_as_missing
+      - dependent_functions_must_handle_explicit_absence
+
+recovery_paths:
+  - from: UNAVAILABLE
+    to:
+      - SUSPECT
+      - DEGRADED
+      - TRUSTED
+    note: Direct full recovery should be rare and policy-controlled.
+  - from: UNTRUSTED
+    to:
+      - SUSPECT
+      - DEGRADED
+      - TRUSTED
+    note: Direct full recovery should be rare and policy-controlled.
+
+anti_flapping_controls:
+  - entry_persistence_thresholds
+  - exit_persistence_thresholds
+  - stronger_evidence_for_recovery
+  - transition_counters
+  - recent_transition_memory
+  - optional_latching_for_repeated_severe_cases
+
+trust_evidence_fields:
+  - trust_record_id
+  - previous_trust_state
+  - new_trust_state
+  - affected_domain
+  - affected_entity_id
+  - transition_time
+  - active_cause_codes
+  - supporting_check_results
+  - related_fault_ids
+  - affected_posture
+  - rationale_summary

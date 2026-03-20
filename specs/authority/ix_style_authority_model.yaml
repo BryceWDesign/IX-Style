@@ -1,0 +1,189 @@
+document:
+  id: IXS-COMMAND-AUTHORITY-MODEL
+  title: IX-Style Command Authority Model
+  status: draft
+  version: 0.1.0
+
+command_sources:
+  - id: OPERATOR
+    description: Human-issued commands or supervising external control intent.
+  - id: MISSION_LOGIC
+    description: Deterministic mission sequencing and task management logic.
+  - id: NOMINAL_AUTONOMY
+    description: Planning or adaptive behavior operating within approved bounds.
+  - id: CONTINGENCY_LOGIC
+    description: Deterministic fallback logic for abnormal conditions.
+  - id: SAFETY_SUPERVISOR
+    description: Highest-priority safety intervention layer.
+
+function_classes:
+  - id: MODE_MANAGEMENT
+    description: Safety posture or operational mode management.
+  - id: MISSION_INTENT
+    description: Mission-level goals and intent updates.
+  - id: GUIDANCE_REQUEST
+    description: Proposed trajectory or movement-related requests.
+  - id: ACTUATION_REQUEST
+    description: Commands affecting controlled functions or actuators.
+  - id: RESOURCE_CONFIGURATION
+    description: Resource allocation or system configuration changes.
+  - id: RECOVERY_ACTION
+    description: Actions that restore capability or authority after degradation.
+  - id: POLICY_OVERRIDE
+    description: Authenticated policy-bounded override requests.
+  - id: EVIDENCE_CONTROL
+    description: Safety-relevant evidence handling control.
+
+source_permissions:
+  MODE_MANAGEMENT:
+    allowed:
+      - OPERATOR
+      - CONTINGENCY_LOGIC
+      - SAFETY_SUPERVISOR
+  MISSION_INTENT:
+    allowed:
+      - OPERATOR
+      - MISSION_LOGIC
+  GUIDANCE_REQUEST:
+    allowed:
+      - NOMINAL_AUTONOMY
+      - CONTINGENCY_LOGIC
+      - OPERATOR
+      - SAFETY_SUPERVISOR
+  ACTUATION_REQUEST:
+    allowed:
+      - NOMINAL_AUTONOMY
+      - CONTINGENCY_LOGIC
+      - OPERATOR
+      - SAFETY_SUPERVISOR
+  RESOURCE_CONFIGURATION:
+    allowed:
+      - MISSION_LOGIC
+      - CONTINGENCY_LOGIC
+      - OPERATOR
+      - SAFETY_SUPERVISOR
+  RECOVERY_ACTION:
+    allowed:
+      - OPERATOR
+      - CONTINGENCY_LOGIC
+      - SAFETY_SUPERVISOR
+  POLICY_OVERRIDE:
+    allowed:
+      - OPERATOR
+      - SAFETY_SUPERVISOR
+  EVIDENCE_CONTROL:
+    allowed:
+      - SAFETY_SUPERVISOR
+      - SYSTEM_INFRASTRUCTURE
+
+baseline_precedence:
+  - SAFETY_SUPERVISOR
+  - CONTINGENCY_LOGIC
+  - OPERATOR
+  - MISSION_LOGIC
+  - NOMINAL_AUTONOMY
+
+arbitration_flow:
+  - identify_source
+  - identify_function_class
+  - validate_schema
+  - check_authentication
+  - check_freshness
+  - check_source_permission
+  - consult_mission_phase
+  - consult_safety_posture
+  - consult_active_degradation_flags
+  - evaluate_policy_gate
+  - compare_conflicting_candidates
+  - apply_runtime_assurance_constraints
+  - select_final_outcome
+  - write_evidence_record
+
+arbitration_outcomes:
+  - id: ACCEPT
+    description: Candidate command is allowed within current constraints.
+  - id: REJECT
+    description: Candidate command fails trust, freshness, permission, or policy checks.
+  - id: VETO
+    description: Safety supervisor explicitly blocks unsafe action.
+  - id: CLAMP
+    description: Candidate command is accepted only in reduced form.
+  - id: SUBSTITUTE
+    description: Safer action replaces original candidate.
+  - id: DEFER
+    description: Candidate command is held pending reconciliation or confirmation.
+  - id: FREEZE
+    description: Authority path is temporarily frozen to prevent unsafe ambiguity.
+  - id: ESCALATE_TO_MODE_CHANGE
+    description: Command attempt contributes to degraded or containment transition.
+
+posture_authority_notes:
+  INITIALIZING:
+    notes:
+      - limited_operator_scope
+      - no_unrestricted_nominal_autonomy
+      - supervisor_may_block_exit
+  NOMINAL:
+    notes:
+      - normal_source_permissions_apply
+      - nominal_autonomy_may_propose_guidance_and_actuation
+      - safety_supervisor_remains_final_constraint_layer
+  SENSOR_DEGRADED:
+    notes:
+      - sensor_dependent_authority_narrows
+      - contingency_logic_may_outrank_mission_logic
+  NAV_DEGRADED:
+    notes:
+      - nav_dependent_requests_strongly_bounded
+      - containment_bias_increases
+  COMMS_DEGRADED:
+    notes:
+      - stale_remote_operator_commands_rejected_or_deferred
+      - lost_link_logic_may_temporarily_outrank_stale_operator_input
+  POWER_DEGRADED:
+    notes:
+      - resource_intensive_requests_clamped_or_rejected
+      - essential_functions_outrank_mission_progress
+  ACTUATION_DEGRADED:
+    notes:
+      - control_envelope_narrows
+      - substitution_and_clamp_more_common
+  ASSURANCE_DEGRADED:
+    notes:
+      - nominal_authority_reduces_sharply
+      - guard_dependent_actions_blocked
+  SAFE_HOLD:
+    notes:
+      - only_containment_compatible_actions_allowed
+      - exit_requires_explicit_recovery_qualification
+
+authority_freeze_triggers:
+  - unresolved_conflicting_command_sources
+  - active_trust_ambiguity
+  - stale_control_intent
+  - evidence_path_uncertainty_during_safety_transition
+  - mode_transition_in_progress
+  - degraded_timing_invalidating_arbitration_confidence
+
+authority_restoration_conditions:
+  - triggering_degradation_cleared
+  - recovery_gate_satisfied
+  - restored_source_authenticated_and_fresh
+  - policy_allows_restoration
+  - no_higher_priority_condition_active
+  - restoration_evidence_written
+
+evidence_fields:
+  - decision_id
+  - timestamp
+  - command_source
+  - function_class
+  - requested_action_summary
+  - source_trust_result
+  - mission_phase
+  - safety_posture
+  - active_degradation_flags
+  - policy_result
+  - arbitration_outcome
+  - final_authoritative_source
+  - rationale_summary

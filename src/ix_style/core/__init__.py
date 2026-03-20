@@ -26,6 +26,7 @@ from .models import (
     MessageEnvelope,
     OrderingMetadata,
 )
+from .pipeline import DecisionPipeline, DecisionPipelineContext, PipelineDecision
 
 __all__ = [
     "LANGUAGE_OWNERSHIP",
@@ -33,6 +34,8 @@ __all__ = [
     "ArbitrationOutcome",
     "AuthState",
     "CommandSource",
+    "DecisionPipeline",
+    "DecisionPipelineContext",
     "FaultLifecycleState",
     "FreshnessMetadata",
     "FreshnessState",
@@ -45,6 +48,7 @@ __all__ = [
     "MessageEnvelope",
     "MissionPhase",
     "OrderingMetadata",
+    "PipelineDecision",
     "ReplayState",
     "ReviewSignificance",
     "SafetyPosture",

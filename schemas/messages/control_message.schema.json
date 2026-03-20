@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ix-style/schemas/messages/control_message.schema.json",
+  "title": "IX-Style Control Message",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "message_id",
+    "message_class",
+    "message_type",
+    "source_id",
+    "source_kind",
+    "created_at",
+    "freshness",
+    "ordering",
+    "integrity",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "message_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "message_class": {
+      "type": "string",
+      "const": "CONTROL"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "control.mode_request",
+        "control.guidance_request",
+        "control.actuation_request",
+        "control.resource_configuration_request",
+        "control.recovery_action_request",
+        "control.policy_override_request"
+      ]
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": [
+        "operator",
+        "mission_logic",
+        "nominal_autonomy",
+        "contingency_logic",
+        "safety_supervisor",
+        "subsystem",
+        "infrastructure"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issued_at",
+        "expires_at",
+        "freshness_state"
+      ],
+      "properties": {
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "freshness_state": {
+          "type": "string",
+          "enum": [
+            "FRESH",
+            "STALE",
+            "EXPIRED",
+            "TIMING_INVALID",
+            "UNKNOWN"
+          ]
+        },
+        "freshness_cause_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "ordering": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence_number",
+        "session_id",
+        "replay_state"
+      ],
+      "properties": {
+        "sequence_number": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parent_message_id": {
+          "type": "string"
+        },
+        "supersedes_message_id": {
+          "type": "string"
+        },
+        "replay_state": {
+          "type": "string",
+          "enum": [
+            "NOT_EVALUATED",
+            "ACCEPTABLE",
+            "DUPLICATE",
+            "OUT_OF_SEQUENCE",
+            "REPLAY_SUSPECTED"
+          ]
+        }
+      }
+    },
+    "causality": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "triggering_event_id": {
+          "type": "string"
+        },
+        "candidate_action_id": {
+          "type": "string"
+        },
+        "related_fault_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "related_trust_record_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "integrity_state",
+        "auth_state"
+      ],
+      "properties": {
+        "integrity_state": {
+          "type": "string",
+          "enum": [
+            "INTEGRITY_VALID",
+            "INTEGRITY_DEGRADED",
+            "INTEGRITY_FAILED"
+          ]
+        },
+        "auth_state": {
+          "type": "string",
+          "enum": [
+            "INTEGRITY_VALID",
+            "AUTH_UNVERIFIED",
+            "AUTH_INVALID"
+          ]
+        },
+        "trust_domain_id": {
+          "type": "string"
+        },
+        "signature_present": {
+          "type": "boolean"
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "verification_rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "function_class",
+        "requested_action",
+        "command_source",
+        "policy_context"
+      ],
+      "properties": {
+        "function_class": {
+          "type": "string",
+          "enum": [
+            "MODE_MANAGEMENT",
+            "MISSION_INTENT",
+            "GUIDANCE_REQUEST",
+            "ACTUATION_REQUEST",
+            "RESOURCE_CONFIGURATION",
+            "RECOVERY_ACTION",
+            "POLICY_OVERRIDE",
+            "EVIDENCE_CONTROL"
+          ]
+        },
+        "requested_action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_scope": {
+          "type": "string"
+        },
+        "requested_magnitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "requested_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "requested_duration_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "command_source": {
+          "type": "string",
+          "enum": [
+            "OPERATOR",
+            "MISSION_LOGIC",
+            "NOMINAL_AUTONOMY",
+            "CONTINGENCY_LOGIC",
+            "SAFETY_SUPERVISOR"
+          ]
+        },
+        "policy_context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "override_requested": {
+              "type": "boolean"
+            },
+            "requested_priority": {
+              "type": "string"
+            },
+            "mission_phase_hint": {
+              "type": "string"
+            }
+          }
+        },
+        "rationale_summary": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

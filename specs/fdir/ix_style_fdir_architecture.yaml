@@ -1,0 +1,189 @@
+document:
+  id: IXS-FDIR-ARCHITECTURE
+  title: IX-Style FDIR Architecture
+  status: draft
+  version: 0.1.0
+
+fault_lifecycle_states:
+  - id: DETECTED
+    description: An anomaly signal has been registered.
+  - id: SUSPECTED
+    description: Candidate fault is tracked with preliminary class and confidence.
+  - id: CONFIRMED
+    description: Fault is operationally real enough to affect posture or mitigation.
+  - id: ISOLATING
+    description: System is refining likely source or affected scope.
+  - id: ISOLATED
+    description: Likely source or trust boundary identified well enough for action.
+  - id: MITIGATING
+    description: A mitigation plan or response is active.
+  - id: CONTAINED
+    description: Bounded posture established while fault remains active.
+  - id: RECOVERING
+    description: Restoration is being evaluated under policy and evidence checks.
+  - id: CLEARED
+    description: Fault is no longer active and recovery conditions are satisfied.
+  - id: LATCHED
+    description: Fault remains active or blocking until explicit qualified reset.
+
+fault_classes:
+  - id: SENSOR_FAULT
+    examples:
+      - stale_data
+      - missing_data
+      - drift
+      - disagreement
+      - implausible_value
+  - id: NAVIGATION_TRUST_FAULT
+    examples:
+      - spoof_suspected_state_change
+      - nav_corroboration_loss
+      - estimator_nav_mismatch
+      - navigation_freshness_failure
+  - id: TIMING_FAULT
+    examples:
+      - missed_monitor_update
+      - stale_decision_path
+      - timing_budget_violation
+      - out_of_sequence_event_stream
+  - id: COMMUNICATION_FAULT
+    examples:
+      - link_loss
+      - excessive_delay
+      - command_freshness_violation
+      - reconnect_reconciliation_incomplete
+  - id: POWER_RESOURCE_FAULT
+    examples:
+      - brownout
+      - unsafe_energy_margin
+      - resource_floor_violation
+      - unsafe_load_shed_outcome
+  - id: ACTUATION_FAULT
+    examples:
+      - non_response
+      - partial_response
+      - lag_beyond_assumptions
+      - command_response_mismatch
+  - id: SOFTWARE_HEALTH_FAULT
+    examples:
+      - heartbeat_loss
+      - internal_consistency_failure
+      - stale_internal_state
+      - scheduler_overrun
+  - id: ASSURANCE_FAULT
+    examples:
+      - guard_loop_unhealthy
+      - intervention_path_unavailable
+      - evidence_sink_degraded
+      - safety_monitor_failure
+  - id: POLICY_AUTHORITY_FAULT
+    examples:
+      - invalid_override_attempt
+      - prohibited_action_request
+      - ambiguous_authority_conflict
+      - unauthorized_source
+  - id: EVIDENCE_FAULT
+    examples:
+      - missing_decision_receipt
+      - ordering_failure
+      - append_only_path_unavailable
+      - rationale_payload_incomplete
+  - id: MULTI_FAULT_COMPOUND
+    examples:
+      - sensor_trust_loss_during_power_degradation
+      - comms_loss_during_navigation_degradation
+      - actuator_degradation_during_safe_hold_transition
+
+priority_bands:
+  - id: P1_CONTAINMENT_CRITICAL
+    description: Fault threatens containment or safe control immediately.
+  - id: P2_HIGH
+    description: Fault strongly affects trust, authority, or major capability.
+  - id: P3_MODERATE
+    description: Fault is meaningful but currently bounded.
+  - id: P4_LOW
+    description: Fault is minor, advisory, or low consequence while contained.
+
+detection_sources:
+  - sensor_trust_monitors
+  - estimator_sanity_monitors
+  - timing_validity_monitors
+  - message_integrity_checks
+  - authority_arbitration_failures
+  - runtime_assurance_interventions
+  - subsystem_self_health_monitors
+  - resource_margin_monitors
+  - operator_acknowledged_discrepancies
+  - evidence_pipeline_health_checks
+
+detection_rule_families:
+  - threshold_based
+  - persistence_based
+  - rate_of_change_based
+  - cross_consistency_based
+  - heartbeat_or_time_gap_based
+  - state_machine_violation_based
+  - policy_violation_based
+  - compound_condition_based
+
+isolation_confidence_levels:
+  - LOW
+  - MEDIUM
+  - HIGH
+
+mitigation_categories:
+  - OBSERVE_ONLY
+  - DEGRADE_FUNCTION
+  - REDUCE_AUTHORITY
+  - SWITCH_SOURCE
+  - CLAMP_BEHAVIOR
+  - FREEZE_PATH
+  - ENTER_DEGRADED_MODE
+  - ENTER_SAFE_HOLD
+  - LATCH_AND_REQUIRE_RESET
+  - RECOVERY_GATE_EVALUATION
+
+fault_record_fields:
+  - fault_id
+  - fault_class
+  - lifecycle_state
+  - detection_source
+  - first_detected_timestamp
+  - latest_update_timestamp
+  - affected_function_scope
+  - severity_estimate
+  - confirmation_confidence
+  - isolation_confidence
+  - active_mitigation_set
+  - current_priority
+  - latch_status
+  - recovery_gate_status
+  - rationale_summary
+
+evidence_events:
+  - fault_created
+  - fault_confirmed
+  - isolation_updated
+  - mitigation_started
+  - mitigation_failed
+  - containment_posture_entered
+  - recovery_evaluation_started
+  - fault_cleared
+  - fault_latched
+  - fault_unlatched
+  - priority_changed
+
+fault_recovery_entry_conditions:
+  - initiating_condition_not_active
+  - corroborating_signals_healthy_for_persistence_window
+  - mitigation_success_demonstrated_if_applicable
+  - no_blocking_higher_priority_fault
+  - policy_allows_recovery
+  - recovery_evidence_recorded
+
+fault_recovery_outcomes:
+  - remain_active
+  - remain_contained
+  - move_to_recovery_observation
+  - clear
+  - latch_pending_reset

@@ -1,0 +1,423 @@
+document:
+  id: IXS-HAZARD-REGISTER
+  title: IX-Style Preliminary Hazard Register
+  status: draft
+  version: 0.1.0
+
+hazards:
+  - id: IXS-HZ-001
+    title: Sensor trust collapse causes unsafe continued operation
+    class: sensor_trust
+    severity_band: critical_to_catastrophic
+    description: >
+      One or more sensors provide stale, drifting, implausible, missing, or
+      internally inconsistent data, and the system continues operating with more
+      authority than is justified.
+    representative_causes:
+      - silent_sensor_drift
+      - stale_timestamps
+      - missing_data
+      - partial_corruption
+      - disagreement_between_sources
+      - trust_collapse_not_propagated
+    minimum_responses:
+      - freshness_checks
+      - plausibility_checks
+      - cross_source_consistency_checks
+      - confidence_degradation_rules
+      - authority_reduction
+      - evidence_capture
+    linked_requirements:
+      - IXS-SYS-011
+      - IXS-SYS-012
+      - IXS-SYS-013
+      - IXS-SYS-014
+      - IXS-SYS-041
+      - IXS-SYS-046
+
+  - id: IXS-HZ-002
+    title: Estimator divergence is not detected in time
+    class: estimator
+    severity_band: critical_to_catastrophic
+    description: >
+      The system state estimator drifts, jumps, oscillates, or otherwise becomes
+      unsupported by trusted measurements, yet autonomy continues using it.
+    representative_causes:
+      - filter_divergence
+      - bad_initialization
+      - poor_update_timing
+      - inconsistent_measurements
+      - hidden_model_mismatch
+    minimum_responses:
+      - estimator_sanity_checks
+      - innovation_monitoring_hooks
+      - temporal_consistency_checks
+      - degraded_mode_entry
+      - evidence_capture
+    linked_requirements:
+      - IXS-SYS-015
+      - IXS-SYS-016
+      - IXS-SYS-023
+      - IXS-SYS-028
+      - IXS-SYS-029
+
+  - id: IXS-HZ-003
+    title: Navigation trust degradation or spoof-suspected condition is mishandled
+    class: navigation_trust
+    severity_band: critical_to_catastrophic
+    description: >
+      Navigation inputs become untrustworthy but the system fails to reduce
+      reliance on them appropriately.
+    representative_causes:
+      - spoof_like_state_discontinuities
+      - trust_imbalance_between_sources
+      - missing_corroboration
+      - stale_navigation_updates
+      - implausible_state_rates
+    minimum_responses:
+      - navigation_trust_state
+      - corroboration_aware_trust_reduction
+      - navigation_degraded_mode
+      - authority_clamp
+      - evidence_capture
+    linked_requirements:
+      - IXS-SYS-015
+      - IXS-SYS-024
+      - IXS-SYS-032
+      - IXS-SYS-042
+      - IXS-SYS-047
+
+  - id: IXS-HZ-004
+    title: Communication loss or intermittency causes unsafe authority assumptions
+    class: communications
+    severity_band: major_to_critical
+    description: >
+      Loss or degradation of communications leads the system to assume operator
+      availability, stale command validity, or unsafe restoration of authority.
+    representative_causes:
+      - link_loss
+      - intermittent_link
+      - delayed_commands
+      - stale_operator_intent
+      - reconnection_without_reconciliation
+    minimum_responses:
+      - comms_degraded_mode
+      - freshness_aware_command_acceptance
+      - authority_freeze_or_downgrade
+      - reconnect_reconciliation
+      - delayed_link_support
+      - evidence_capture
+    linked_requirements:
+      - IXS-SYS-007
+      - IXS-SYS-010
+      - IXS-SYS-032
+      - IXS-SYS-040
+      - IXS-SYS-050
+      - IXS-SYS-058
+
+  - id: IXS-HZ-005
+    title: Timing degradation invalidates safety decisions
+    class: timing
+    severity_band: critical
+    description: >
+      Monitors, control updates, commands, or evidence events become late,
+      out of sequence, or mis-timestamped, but the system continues acting as
+      though timing assumptions remain valid.
+    representative_causes:
+      - clock_drift
+      - delayed_monitor_updates
+      - asynchronous_message_ordering
+      - scheduler_overload
+      - stale_events
+    minimum_responses:
+      - timing_validity_signal
+      - freshness_thresholds
+      - missed_update_detection
+      - timing_aware_authority_reduction
+      - timing_aware_evidence
+    linked_requirements:
+      - IXS-SYS-013
+      - IXS-SYS-035
+      - IXS-SYS-038
+      - IXS-SYS-057
+      - IXS-SYS-058
+
+  - id: IXS-HZ-006
+    title: Power brownout or resource degradation disables safety before autonomy
+    class: resources
+    severity_band: critical_to_catastrophic
+    description: >
+      The vehicle enters a power- or resource-degraded condition and sheds or
+      loses the wrong functions first.
+    representative_causes:
+      - incorrect_load_shed_priority
+      - monitor_starvation
+      - telemetry_overload
+      - unsafe_disablement_sequence
+    minimum_responses:
+      - essential_function_definition
+      - power_degraded_mode
+      - priority_preservation
+      - resource_aware_shedding_policy
+      - evidence_capture
+    linked_requirements:
+      - IXS-SYS-024
+      - IXS-SYS-032
+      - IXS-SYS-059
+      - IXS-SYS-060
+
+  - id: IXS-HZ-007
+    title: Actuator non-response or partial response is not contained
+    class: actuation
+    severity_band: critical_to_catastrophic
+    description: >
+      A commanded function does not respond, responds only partially, or behaves
+      inconsistently with the commanded action.
+    representative_causes:
+      - stuck_actuator
+      - degraded_authority
+      - lag_outside_assumptions
+      - false_completion_report
+      - missing_feedback_confirmation
+    minimum_responses:
+      - actuator_confidence_tracking
+      - command_response_correlation
+      - degraded_or_safe_hold_entry
+      - mitigation_substitution_logic
+      - evidence_capture
+    linked_requirements:
+      - IXS-SYS-018
+      - IXS-SYS-021
+      - IXS-SYS-026
+      - IXS-SYS-027
+      - IXS-SYS-041
+
+  - id: IXS-HZ-008
+    title: Conflicting command sources are not arbitrated deterministically
+    class: authority
+    severity_band: critical
+    description: >
+      Multiple command sources attempt to influence the same controlled function
+      without a deterministic authority outcome.
+    representative_causes:
+      - operator_autonomy_conflict
+      - safety_supervisor_not_dominant
+      - stale_remote_command
+      - contingency_nominal_conflict
+    minimum_responses:
+      - explicit_authority_model
+      - precedence_rules
+      - single_authoritative_output
+      - arbitration_evidence
+      - no_ambiguous_mixed_authority_state
+    linked_requirements:
+      - IXS-SYS-006
+      - IXS-SYS-007
+      - IXS-SYS-008
+      - IXS-SYS-009
+      - IXS-SYS-010
+
+  - id: IXS-HZ-009
+    title: Runtime assurance fails to block an unsafe nominal command
+    class: runtime_assurance
+    severity_band: catastrophic
+    description: >
+      Nominal autonomy proposes an unsafe action and the runtime-assurance layer
+      does not contain it in time.
+    representative_causes:
+      - incomplete_constraint_model
+      - monitor_disabled
+      - intervention_path_failure
+      - insufficient_timing_margin
+      - weak_independence_from_nominal_logic
+    minimum_responses:
+      - independent_safety_guard
+      - pre_execution_intervention
+      - fail_safe_outcomes
+      - timing_sensitive_verification
+      - intervention_evidence
+    linked_requirements:
+      - IXS-SYS-023
+      - IXS-SYS-024
+      - IXS-SYS-025
+      - IXS-SYS-026
+      - IXS-SYS-056
+
+  - id: IXS-HZ-010
+    title: Unsafe restoration of full authority after degradation
+    class: recovery
+    severity_band: critical
+    description: >
+      The system returns to full authority too early, too quietly, or without
+      sufficient policy checks after a safety-relevant confidence collapse.
+    representative_causes:
+      - automatic_silent_reset
+      - insufficient_persistence_checks
+      - operator_not_informed
+      - latched_fault_bypass
+      - recovered_signal_trusted_immediately
+    minimum_responses:
+      - explicit_exit_rules
+      - policy_controlled_recovery
+      - persistence_checks
+      - visible_restoration_rationale
+      - no_silent_restore
+    linked_requirements:
+      - IXS-SYS-019
+      - IXS-SYS-030
+      - IXS-SYS-033
+      - IXS-SYS-034
+      - IXS-SYS-047
+
+  - id: IXS-HZ-011
+    title: Policy violation or bypass allows prohibited control action
+    class: policy
+    severity_band: critical
+    description: >
+      A command or mode transition violates a policy boundary but is still
+      accepted or executed.
+    representative_causes:
+      - bad_policy_evaluation
+      - incomplete_policy_map
+      - missing_authority_check
+      - insecure_override_path
+      - stale_policy_context
+    minimum_responses:
+      - policy_gate
+      - authenticated_override_handling
+      - approval_denial_evidence
+      - policy_violation_fault_classification
+    linked_requirements:
+      - IXS-SYS-002
+      - IXS-SYS-003
+      - IXS-SYS-017
+      - IXS-SYS-037
+      - IXS-SYS-041
+
+  - id: IXS-HZ-012
+    title: Message integrity loss corrupts control-plane trust
+    class: message_trust
+    severity_band: critical
+    description: >
+      Safety-relevant control or mode-management messages are altered, forged,
+      misattributed, replayed, or otherwise accepted without justified trust.
+    representative_causes:
+      - integrity_failure
+      - origin_authentication_failure
+      - replay_acceptance
+      - incorrect_message_class_handling
+      - trust_not_tied_to_source
+    minimum_responses:
+      - integrity_checks
+      - authenticated_origin
+      - replay_aware_handling
+      - data_class_separation
+      - authority_impact_rules
+    linked_requirements:
+      - IXS-SYS-036
+      - IXS-SYS-037
+      - IXS-SYS-038
+      - IXS-SYS-039
+      - IXS-SYS-040
+
+  - id: IXS-HZ-013
+    title: Safety-relevant evidence is incomplete, mutable, or missing
+    class: evidence
+    severity_band: major_to_critical
+    description: >
+      The system takes a safety-relevant action but does not preserve enough
+      evidence to reconstruct what happened and why.
+    representative_causes:
+      - missing_decision_receipt
+      - telemetry_evidence_commingling
+      - event_overwrite
+      - mutable_logs
+      - insufficient_rationale_fields
+    minimum_responses:
+      - dedicated_evidence_records
+      - tamper_evident_storage
+      - explicit_rationale_schema
+      - ordering_and_authority_fields
+      - separation_from_routine_telemetry
+    linked_requirements:
+      - IXS-SYS-041
+      - IXS-SYS-042
+      - IXS-SYS-043
+      - IXS-SYS-044
+      - IXS-SYS-045
+
+  - id: IXS-HZ-014
+    title: Operator support obscures active hazards or mitigation status
+    class: operator_support
+    severity_band: major
+    description: >
+      Mission-health displays or event streams fail to communicate active
+      hazard, authority, or mitigation posture clearly enough for informed
+      operator review.
+    representative_causes:
+      - poor_prioritization
+      - buried_active_faults
+      - unclear_mode_labels
+      - insufficient_rationale_presentation
+      - too_much_nominal_noise
+    minimum_responses:
+      - prioritized_mission_health_model
+      - compact_safety_event_stream
+      - visible_authority_and_confidence_state
+      - explicit_rationale_summaries
+    linked_requirements:
+      - IXS-SYS-046
+      - IXS-SYS-047
+      - IXS-SYS-048
+      - IXS-SYS-049
+
+  - id: IXS-HZ-015
+    title: Safety monitor or evidence subsystem failure goes unnoticed
+    class: assurance_subsystem
+    severity_band: critical_to_catastrophic
+    description: >
+      The subsystem responsible for safety supervision, monitoring, or evidence
+      capture partially fails, and the system does not recognize the loss.
+    representative_causes:
+      - dead_monitor_loop
+      - invalid_watchdog_assumptions
+      - evidence_sink_unavailable
+      - self_health_not_monitored
+      - failed_intervention_path_masked
+    minimum_responses:
+      - monitor_self_health
+      - evidence_path_health
+      - degraded_assurance_posture
+      - fail_safe_authority_reduction
+    linked_requirements:
+      - IXS-SYS-023
+      - IXS-SYS-028
+      - IXS-SYS-041
+      - IXS-SYS-056
+      - IXS-SYS-057
+
+  - id: IXS-HZ-016
+    title: Concurrent faults overwhelm prioritization or mode logic
+    class: multi_fault
+    severity_band: critical
+    description: >
+      Two or more faults occur together and the system handles them as isolated
+      events without coherent prioritization or containment.
+    representative_causes:
+      - sensor_fault_during_power_degradation
+      - comms_loss_during_navigation_uncertainty
+      - actuator_degradation_during_safe_hold
+      - conflicting_mitigation_logic
+      - no_multi_fault_priority_policy
+    minimum_responses:
+      - concurrent_fault_representation
+      - prioritization_model
+      - deterministic_mitigation_precedence
+      - conflict_resolving_mode_logic
+      - multi_fault_verification
+    linked_requirements:
+      - IXS-SYS-020
+      - IXS-SYS-021
+      - IXS-SYS-029
+      - IXS-SYS-052
+      - IXS-SYS-055

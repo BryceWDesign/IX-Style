@@ -1,0 +1,217 @@
+document:
+  id: IXS-RUNTIME-ASSURANCE-GUARD
+  title: IX-Style Runtime Assurance Guard Architecture
+  status: draft
+  version: 0.1.0
+
+guard_role:
+  description: >
+    Independent supervisory layer that evaluates candidate behavior against
+    active constraints, trust posture, authority posture, and containment rules
+    before safety-relevant actions are allowed to proceed.
+
+guard_inputs:
+  candidate_action_inputs:
+    - requested_command
+    - command_source
+    - function_class
+    - requested_magnitude
+    - requested_timing
+    - intended_mission_effect
+  state_and_estimate_inputs:
+    - estimated_state
+    - estimator_confidence
+    - recent_state_history
+    - mission_phase
+  trust_and_timing_inputs:
+    - sensor_trust_posture
+    - data_freshness_status
+    - timing_validity_status
+    - navigation_trust_posture
+    - message_trust_posture
+  system_health_inputs:
+    - active_faults
+    - active_degradation_flags
+    - active_safety_posture
+    - actuator_confidence
+    - power_resource_posture
+    - assurance_path_self_health
+  policy_inputs:
+    - active_safety_constraints
+    - recovery_gates
+    - mode_restrictions
+    - function_specific_permissions
+    - containment_policies
+    - override_policies
+
+guard_outputs:
+  - intervention_outcome
+  - constrained_or_replacement_command
+  - triggered_constraint_ids
+  - confidence_rationale
+  - mode_escalation_request
+  - evidence_payload
+
+intervention_outcomes:
+  - id: ALLOW
+    description: Candidate action remains inside active bounds.
+  - id: CLAMP
+    description: Candidate action allowed only in reduced or narrowed form.
+  - id: SUBSTITUTE
+    description: Safer bounded action replaces proposed one.
+  - id: VETO
+    description: Candidate action explicitly blocked by the guard.
+  - id: FREEZE
+    description: Authority path or controlled function temporarily frozen.
+  - id: ESCALATE_SAFE_POSTURE
+    description: Candidate action contributes to degraded-mode or safe-hold transition.
+
+constraint_families:
+  - id: STATE_ENVELOPE
+    description: Bounds state variables and allowed regions.
+    examples:
+      - position_region_validity
+      - attitude_limits
+      - velocity_bounds
+      - thermal_state_bounds
+      - resource_floor_limits
+
+  - id: RATE_AND_TRANSITION
+    description: Bounds rate of change and sequencing behavior.
+    examples:
+      - max_rate_of_change
+      - max_turn_rate
+      - recovery_transition_pacing
+      - mode_transition_sequence_rules
+
+  - id: TRUST_CONDITIONED
+    description: Tightens behavior when trust weakens.
+    examples:
+      - reduce_authority_when_nav_trust_low
+      - block_when_data_freshness_invalid
+      - disallow_recovery_when_assurance_low
+
+  - id: RESOURCE_AND_SURVIVABILITY
+    description: Preserves essential function under low margin.
+    examples:
+      - no_high_cost_action_in_power_degraded
+      - preserve_safe_hold_budget
+      - preserve_monitoring_continuity
+
+  - id: POLICY_AND_AUTHORITY
+    description: Prevents disallowed actions regardless of raw physics.
+    examples:
+      - invalid_source_for_function_class
+      - action_not_allowed_in_current_posture
+      - no_recovery_without_gate
+
+  - id: CONTAINMENT
+    description: Emergency-like rules for preserving control or survivability.
+    examples:
+      - enter_safe_hold
+      - freeze_actuation_expansion
+      - reject_mission_progress_actions
+      - lock_out_authority_restoration
+
+decision_layers:
+  - id: ELIGIBILITY_GATE
+    checks:
+      - source_permitted
+      - command_fresh_enough
+      - message_trusted_enough
+      - action_allowed_in_current_posture
+  - id: CONSTRAINT_SCREENING
+    checks:
+      - state_bound_violation
+      - rate_bound_violation
+      - posture_restriction_violation
+      - resource_preservation_violation
+  - id: CONFIDENCE_CONDITIONING
+    checks:
+      - nav_trust_sufficient
+      - actuator_confidence_sufficient
+      - data_trust_sufficient
+      - assurance_path_health_sufficient
+  - id: CONTAINMENT_BIAS
+    checks:
+      - safe_hold_active
+      - escalation_pending
+      - multiple_degradations_interacting
+      - assurance_layer_suspect
+  - id: INTERVENTION_SELECTION
+    checks:
+      - clamp_possible
+      - substitute_defined
+      - veto_preferred
+      - mode_escalation_needed
+
+posture_interaction:
+  NOMINAL:
+    notes:
+      - widest_allowable_envelope
+  SENSOR_DEGRADED:
+    notes:
+      - narrow_sensor_dependent_behavior
+  NAV_DEGRADED:
+    notes:
+      - strongly_limit_nav_dependent_behavior
+  COMMS_DEGRADED:
+    notes:
+      - reject_stale_remote_influence
+      - favor_preapproved_contingency_logic
+  POWER_DEGRADED:
+    notes:
+      - bias_toward_survivability
+      - preserve_essential_functions
+  ACTUATION_DEGRADED:
+    notes:
+      - narrow_control_authority
+      - permit_substitute_behavior
+  ASSURANCE_DEGRADED:
+    notes:
+      - reduce_authority_aggressively
+      - safe_hold_bias_increases
+  SAFE_HOLD:
+    notes:
+      - strongest_containment_mode
+      - block_mission_progress_behavior
+
+guard_health_monitors:
+  - guard_loop_not_updating
+  - guard_timing_budget_violation
+  - intervention_path_unavailable
+  - stale_constraint_set
+  - evidence_emission_failure
+  - internal_inconsistency_detected
+
+guard_health_responses:
+  - reduce_authority
+  - block_mission_progress_actions
+  - enter_assurance_degraded_posture
+  - escalate_to_safe_hold
+
+safety_envelope_structure:
+  hierarchy:
+    - envelope_family
+    - envelope_rule
+    - envelope_instance
+
+evidence_requirements:
+  - candidate_action_summary
+  - command_source
+  - function_class
+  - mission_phase
+  - safety_posture
+  - active_degradation_flags
+  - triggered_constraint_ids
+  - relevant_trust_posture_signals
+  - intervention_outcome
+  - final_command_if_changed
+  - mode_escalation_requested
+  - rationale
+
+timing_expectations:
+  - guard_evaluation_before_execution
+  - stale_guard_decisions_not_reused_as_current
+  - timing_validity_influences_confidence_and_authority
+  - intervention_latency_becomes_verification_target

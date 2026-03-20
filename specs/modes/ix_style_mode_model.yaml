@@ -1,0 +1,320 @@
+document:
+  id: IXS-OPERATIONAL-MODE-MODEL
+  title: IX-Style Operational Mode Model
+  status: draft
+  version: 0.1.0
+
+mission_phases:
+  - id: BOOTSTRAP
+    description: Startup and initialization phase before operational readiness.
+  - id: READY
+    description: Ready but not actively executing mission behavior.
+  - id: ACTIVE
+    description: Active mission execution.
+  - id: CONTINGENCY
+    description: Mission-level contingency handling phase.
+  - id: QUIESCENT
+    description: Reduced activity or standby state after mission activity.
+
+safety_postures:
+  - id: INITIALIZING
+    severity_rank: 0
+    description: System startup with readiness checks and bounded actions only.
+    entry_conditions:
+      - power_up
+      - controlled_restart
+      - allowed_reset
+    exit_conditions:
+      - essential_monitors_alive
+      - timing_baseline_valid
+      - evidence_path_alive
+      - no_blocking_latched_fault
+      - readiness_criteria_satisfied
+    allowed_behaviors:
+      - self_test
+      - bounded_setup
+      - evidence_initialization
+    blocked_behaviors:
+      - unrestricted_mission_autonomy
+
+  - id: NOMINAL
+    severity_rank: 8
+    description: Normal bounded operation with required confidence and capability.
+    entry_conditions:
+      - no_dominant_degradation_active
+      - no_unresolved_blocking_fault
+      - no_recovery_gate_pending
+      - required_confidence_above_threshold
+    exit_conditions:
+      - confirmed_degradation_requiring_reduced_authority
+      - containment_risk
+      - assurance_path_loss
+    allowed_behaviors:
+      - nominal_planning
+      - nominal_execution
+      - normal_operator_interaction
+      - standard_runtime_assurance
+    blocked_behaviors: []
+
+  - id: SENSOR_DEGRADED
+    severity_rank: 6
+    description: Reduced input trust requires narrower behavior authority.
+    triggers:
+      - sensor_data_stale
+      - sensor_data_missing
+      - sensor_disagreement
+      - plausibility_failure
+      - critical_sensor_confidence_low
+    expected_behaviors:
+      - reduce_sensor_dependent_autonomy
+      - clamp_unsupported_actions
+      - elevate_trust_evidence
+      - elevate_operator_visibility
+    exit_conditions:
+      - degraded_sensor_conditions_cleared
+      - corroboration_restored
+      - persistence_window_satisfied
+      - recovery_policy_allows
+
+  - id: NAV_DEGRADED
+    severity_rank: 5
+    description: Navigation trust is insufficient for full mission behavior.
+    triggers:
+      - navigation_state_jump
+      - navigation_corroboration_lost
+      - spoof_suspected_condition
+      - estimator_nav_mismatch
+      - navigation_freshness_failure
+    expected_behaviors:
+      - restrict_nav_dependent_actions
+      - prefer_containment_or_local_behavior
+      - elevate_nav_confidence_reporting
+    exit_conditions:
+      - trusted_corroboration_restored
+      - navigation_consistency_recovered
+      - persistence_window_satisfied
+      - recovery_policy_allows
+
+  - id: COMMS_DEGRADED
+    severity_rank: 7
+    description: Link quality or command freshness is too weak for nominal assumptions.
+    triggers:
+      - link_loss
+      - excessive_delay
+      - intermittent_connectivity
+      - command_freshness_violation
+      - reconciliation_incomplete
+    expected_behaviors:
+      - no_assumption_of_operator_availability
+      - freeze_or_downgrade_stale_remote_authority
+      - use_preapproved_lost_link_policy
+      - reject_or_quarantine_stale_commands
+    exit_conditions:
+      - link_quality_restored
+      - command_freshness_restored
+      - reconciliation_completed
+      - recovery_policy_allows
+
+  - id: POWER_DEGRADED
+    severity_rank: 3
+    description: Power or resource margin is low enough that capability must narrow.
+    triggers:
+      - low_energy_reserve
+      - brownout_event
+      - critical_resource_margin_violation
+      - unsafe_budget_forecast
+    expected_behaviors:
+      - shed_nonessential_loads_first
+      - preserve_monitors_and_safe_hold
+      - derate_high_cost_behaviors
+      - bias_toward_survivability
+    exit_conditions:
+      - resource_margin_restored
+      - essential_functions_stable
+      - recovery_policy_allows
+
+  - id: ACTUATION_DEGRADED
+    severity_rank: 4
+    description: Commanded control effect is no longer sufficiently trustworthy.
+    triggers:
+      - actuator_non_response
+      - actuator_partial_response
+      - excessive_actuation_lag
+      - command_response_mismatch
+      - inconsistent_subsystem_report
+    expected_behaviors:
+      - reduce_control_envelope
+      - clamp_commands
+      - substitute_bounded_fallback_actions
+      - escalate_if_control_confidence_falls
+    exit_conditions:
+      - actuator_confidence_restored
+      - response_correlation_normal
+      - persistence_window_satisfied
+      - recovery_policy_allows
+
+  - id: ASSURANCE_DEGRADED
+    severity_rank: 2
+    description: The guard, monitor, or evidence path is itself degraded.
+    triggers:
+      - runtime_assurance_loop_unhealthy
+      - monitor_watchdog_failure
+      - evidence_sink_unavailable
+      - guard_timing_violation
+      - intervention_path_self_test_failure
+    expected_behaviors:
+      - reduce_authority_aggressively
+      - block_guard_dependent_behaviors
+      - elevate_operator_visibility
+      - prepare_safe_hold_transition
+    exit_conditions:
+      - assurance_path_health_restored
+      - required_self_health_checks_pass
+      - recovery_policy_allows
+      - no_higher_priority_degradation_active
+
+  - id: SAFE_HOLD
+    severity_rank: 1
+    description: Containment-oriented posture for preserving control and survivability.
+    triggers:
+      - critical_containment_risk
+      - interacting_degradations
+      - failed_or_suspect_assurance_layer
+      - unsafe_command_path_detected
+      - severe_resource_threat
+      - policy_directed_containment
+    expected_behaviors:
+      - suspend_or_narrow_mission_autonomy
+      - preserve_stabilization_and_essential_monitoring
+      - preserve_authority_and_evidence_traceability
+      - require_explicit_recovery_qualification
+    exit_conditions:
+      - root_conditions_not_active
+      - minimum_essential_functions_stable
+      - recovery_gate_satisfied
+      - policy_permits_exit
+      - authority_restoration_explicitly_performed
+
+dominant_posture_precedence:
+  - SAFE_HOLD
+  - ASSURANCE_DEGRADED
+  - POWER_DEGRADED
+  - ACTUATION_DEGRADED
+  - NAV_DEGRADED
+  - SENSOR_DEGRADED
+  - COMMS_DEGRADED
+  - NOMINAL
+
+active_degradation_flags:
+  - sensor_trust_low
+  - sensor_data_stale
+  - sensor_data_missing
+  - nav_corroboration_lost
+  - nav_spoof_suspected
+  - comms_link_intermittent
+  - command_freshness_low
+  - power_margin_low
+  - brownout_recent
+  - actuator_response_uncertain
+  - assurance_guard_unhealthy
+  - evidence_path_degraded
+
+transition_rules:
+  - id: MODE-RULE-001
+    statement: Raw anomaly alone does not force posture change without entry criteria.
+  - id: MODE-RULE-002
+    statement: Entry may require persistence or corroboration to avoid flapping.
+  - id: MODE-RULE-003
+    statement: Confirmed containment risk shall escalate rapidly.
+  - id: MODE-RULE-004
+    statement: Exit from degraded posture requires a recovery gate.
+  - id: MODE-RULE-005
+    statement: Full authority shall not be silently restored.
+  - id: MODE-RULE-006
+    statement: Safe-hold exit requires explicit recovery qualification.
+
+allowed_direct_transitions:
+  - from: INITIALIZING
+    to: NOMINAL
+    when: readiness_criteria_satisfied
+  - from: INITIALIZING
+    to: SAFE_HOLD
+    when: blocking_fault_or_assurance_failure
+  - from: NOMINAL
+    to: SENSOR_DEGRADED
+    when: sensor_trust_reduced
+  - from: NOMINAL
+    to: NAV_DEGRADED
+    when: navigation_trust_reduced
+  - from: NOMINAL
+    to: COMMS_DEGRADED
+    when: link_or_command_freshness_degraded
+  - from: NOMINAL
+    to: POWER_DEGRADED
+    when: resource_margin_low
+  - from: NOMINAL
+    to: ACTUATION_DEGRADED
+    when: actuation_confidence_reduced
+  - from: NOMINAL
+    to: ASSURANCE_DEGRADED
+    when: guard_or_evidence_path_degraded
+  - from: NOMINAL
+    to: SAFE_HOLD
+    when: containment_risk_or_policy_directed_containment
+  - from: SENSOR_DEGRADED
+    to: SAFE_HOLD
+    when: escalation
+  - from: NAV_DEGRADED
+    to: SAFE_HOLD
+    when: escalation
+  - from: COMMS_DEGRADED
+    to: SAFE_HOLD
+    when: escalation
+  - from: POWER_DEGRADED
+    to: SAFE_HOLD
+    when: escalation
+  - from: ACTUATION_DEGRADED
+    to: SAFE_HOLD
+    when: escalation
+  - from: ASSURANCE_DEGRADED
+    to: SAFE_HOLD
+    when: escalation
+  - from: SENSOR_DEGRADED
+    to: NOMINAL
+    when: recovery_gate_satisfied
+  - from: NAV_DEGRADED
+    to: NOMINAL
+    when: recovery_gate_satisfied
+  - from: COMMS_DEGRADED
+    to: NOMINAL
+    when: recovery_gate_satisfied
+  - from: POWER_DEGRADED
+    to: NOMINAL
+    when: recovery_gate_satisfied
+  - from: ACTUATION_DEGRADED
+    to: NOMINAL
+    when: recovery_gate_satisfied
+  - from: ASSURANCE_DEGRADED
+    to: NOMINAL
+    when: recovery_gate_satisfied
+  - from: SAFE_HOLD
+    to: SENSOR_DEGRADED
+    when: qualified_relaxation
+  - from: SAFE_HOLD
+    to: NAV_DEGRADED
+    when: qualified_relaxation
+  - from: SAFE_HOLD
+    to: COMMS_DEGRADED
+    when: qualified_relaxation
+  - from: SAFE_HOLD
+    to: POWER_DEGRADED
+    when: qualified_relaxation
+  - from: SAFE_HOLD
+    to: ACTUATION_DEGRADED
+    when: qualified_relaxation
+  - from: SAFE_HOLD
+    to: ASSURANCE_DEGRADED
+    when: qualified_relaxation
+  - from: SAFE_HOLD
+    to: NOMINAL
+    when: explicit_recovery_qualification

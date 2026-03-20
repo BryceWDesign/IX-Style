@@ -1,0 +1,541 @@
+document:
+  id: IXS-SYS-REQ-BASELINE
+  title: IX-Style System Requirements Baseline
+  status: draft
+  version: 0.1.0
+
+requirements:
+  - id: IXS-SYS-001
+    title: Bounded autonomy architecture
+    category: architecture
+    shall: >
+      IX-Style shall define a bounded-autonomy architecture in which nominal
+      autonomy, safety supervision, and evidence capture are structurally
+      separable concerns.
+    verification_hint: inspection
+
+  - id: IXS-SYS-002
+    title: Explicit autonomy boundaries
+    category: architecture
+    shall: >
+      IX-Style shall define explicit autonomy boundaries for safety-critical
+      actions.
+    verification_hint: inspection
+
+  - id: IXS-SYS-003
+    title: Unsafe command intervention path
+    category: runtime_assurance
+    shall: >
+      IX-Style shall provide a deterministic path by which unsafe nominal
+      commands can be vetoed, downgraded, replaced, or rejected.
+    verification_hint: test
+
+  - id: IXS-SYS-004
+    title: Confidence-loss posture
+    category: safety
+    shall: >
+      IX-Style shall define a repository-level safety posture that prefers
+      reduced authority over unbounded operation when confidence degrades.
+    verification_hint: inspection
+
+  - id: IXS-SYS-005
+    title: Traceable requirements baseline
+    category: traceability
+    shall: >
+      IX-Style shall define traceable system requirements suitable for later
+      mapping to hazards, architecture elements, and verification artifacts.
+    verification_hint: inspection
+
+  - id: IXS-SYS-006
+    title: Distinct command sources
+    category: authority
+    shall: >
+      IX-Style shall define distinct command sources, including at minimum:
+      operator, mission logic, nominal autonomy, safety supervisor, and
+      contingency logic.
+    verification_hint: inspection
+
+  - id: IXS-SYS-007
+    title: Authority precedence rules
+    category: authority
+    shall: >
+      IX-Style shall define command-source precedence rules for normal,
+      degraded, and contingency conditions.
+    verification_hint: analysis
+
+  - id: IXS-SYS-008
+    title: Conflict-free authority
+    category: authority
+    shall: >
+      IX-Style shall prevent simultaneous conflicting control authority from
+      being presented to the same controlled function without deterministic
+      arbitration.
+    verification_hint: test
+
+  - id: IXS-SYS-009
+    title: Record authoritative source
+    category: evidence
+    shall: >
+      IX-Style shall record the authoritative source for each safety-relevant
+      command decision.
+    verification_hint: test
+
+  - id: IXS-SYS-010
+    title: Authority reduction and restoration conditions
+    category: authority
+    shall: >
+      IX-Style shall define conditions under which authority is reduced,
+      frozen, transferred, or restored.
+    verification_hint: analysis
+
+  - id: IXS-SYS-011
+    title: Sensor trust as explicit signal
+    category: sensor_trust
+    shall: >
+      IX-Style shall represent sensor trust as an explicit system signal rather
+      than an implicit assumption.
+    verification_hint: inspection
+
+  - id: IXS-SYS-012
+    title: Input validity detection
+    category: sensor_trust
+    shall: >
+      IX-Style shall support detection of stale, missing, implausible, or
+      mutually inconsistent input data.
+    verification_hint: test
+
+  - id: IXS-SYS-013
+    title: Confidence degradation logic
+    category: sensor_trust
+    shall: >
+      IX-Style shall support confidence degradation when input freshness,
+      plausibility, timing, or cross-consistency falls outside acceptable
+      bounds.
+    verification_hint: test
+
+  - id: IXS-SYS-014
+    title: Downstream authority impact from confidence collapse
+    category: sensor_trust
+    shall: >
+      IX-Style shall define how confidence collapse in one or more inputs
+      affects downstream autonomy authority.
+    verification_hint: analysis
+
+  - id: IXS-SYS-015
+    title: Navigation trust degradation handling
+    category: sensor_trust
+    shall: >
+      IX-Style shall support identification of navigation trust degradation,
+      including conditions consistent with spoofing suspicion, state divergence,
+      or loss of independent corroboration.
+    verification_hint: test
+
+  - id: IXS-SYS-016
+    title: Estimator sanity monitoring
+    category: sensor_trust
+    shall: >
+      IX-Style shall support estimator-sanity monitoring sufficient to detect
+      state transitions that are implausible, unstable, or unsupported by
+      trusted inputs.
+    verification_hint: test
+
+  - id: IXS-SYS-017
+    title: FDIR framework
+    category: fdir
+    shall: >
+      IX-Style shall define an FDIR framework capable of fault detection, fault
+      classification, isolation reasoning, and mitigation selection.
+    verification_hint: inspection
+
+  - id: IXS-SYS-018
+    title: Minimum fault class coverage
+    category: fdir
+    shall: >
+      IX-Style shall support fault classes covering at minimum: sensor faults,
+      timing faults, communication faults, power faults, actuator faults,
+      software health faults, policy violations, and subsystem self-report
+      inconsistencies.
+    verification_hint: inspection
+
+  - id: IXS-SYS-019
+    title: Latched fault behavior
+    category: fdir
+    shall: >
+      IX-Style shall support latched fault behavior for conditions that require
+      manual or policy-controlled reset.
+    verification_hint: test
+
+  - id: IXS-SYS-020
+    title: Multi-stage fault handling
+    category: fdir
+    shall: >
+      IX-Style shall support multi-stage fault handling, including detect,
+      confirm, contain, mitigate, observe, and recover states where appropriate.
+    verification_hint: test
+
+  - id: IXS-SYS-021
+    title: Concurrent fault prioritization
+    category: fdir
+    shall: >
+      IX-Style shall define how multiple concurrent faults are represented and
+      prioritized.
+    verification_hint: analysis
+
+  - id: IXS-SYS-022
+    title: Safe containment
+    category: fdir
+    shall: >
+      IX-Style shall support safe containment when full recovery is unavailable
+      or inadvisable.
+    verification_hint: test
+
+  - id: IXS-SYS-023
+    title: Independent runtime-assurance function
+    category: runtime_assurance
+    shall: >
+      IX-Style shall define a runtime-assurance function that is logically
+      independent from the nominal autonomy decision path.
+    verification_hint: inspection
+
+  - id: IXS-SYS-024
+    title: Constraint monitoring
+    category: runtime_assurance
+    shall: >
+      IX-Style shall support constraint monitoring for safety-relevant
+      envelopes, including state, rate, timing, thermal, power, and resource
+      constraints as configured for a target platform.
+    verification_hint: test
+
+  - id: IXS-SYS-025
+    title: Pre-execution intervention
+    category: runtime_assurance
+    shall: >
+      IX-Style shall support intervention before execution of commands that
+      would violate active safety constraints.
+    verification_hint: test
+
+  - id: IXS-SYS-026
+    title: Intervention outcomes
+    category: runtime_assurance
+    shall: >
+      IX-Style shall define intervention outcomes that include veto, clamp,
+      substitute, fallback-mode entry, and safe-hold initiation.
+    verification_hint: test
+
+  - id: IXS-SYS-027
+    title: Confidence-aware intervention
+    category: runtime_assurance
+    shall: >
+      IX-Style shall define how monitor confidence and actuator confidence
+      affect runtime-assurance intervention decisions.
+    verification_hint: analysis
+
+  - id: IXS-SYS-028
+    title: Runtime-assurance evidence capture
+    category: runtime_assurance
+    shall: >
+      IX-Style shall preserve evidence describing why a runtime-assurance
+      intervention occurred.
+    verification_hint: test
+
+  - id: IXS-SYS-029
+    title: Operational mode model
+    category: modes
+    shall: >
+      IX-Style shall define an operational mode model that includes normal,
+      degraded, and contingency behaviors.
+    verification_hint: inspection
+
+  - id: IXS-SYS-030
+    title: Explicit degraded-mode criteria
+    category: modes
+    shall: >
+      IX-Style shall define explicit entry and exit criteria for each degraded
+      mode.
+    verification_hint: analysis
+
+  - id: IXS-SYS-031
+    title: Reduced authority in degraded modes
+    category: modes
+    shall: >
+      IX-Style shall ensure that degraded modes reduce behavior authority or
+      scope relative to the mode from which they were entered.
+    verification_hint: test
+
+  - id: IXS-SYS-032
+    title: Minimum degraded-mode concepts
+    category: modes
+    shall: >
+      IX-Style shall include at minimum the following degraded-mode concepts:
+      sensor-degraded, navigation-degraded, comms-degraded, power-degraded, and
+      safe-hold.
+    verification_hint: inspection
+
+  - id: IXS-SYS-033
+    title: Policy-controlled recovery
+    category: modes
+    shall: >
+      IX-Style shall support policy-controlled recovery from degraded or latched
+      safety states.
+    verification_hint: test
+
+  - id: IXS-SYS-034
+    title: No silent full-authority restoration
+    category: modes
+    shall: >
+      IX-Style shall prevent silent restoration of full authority after a
+      safety-relevant confidence collapse.
+    verification_hint: test
+
+  - id: IXS-SYS-035
+    title: Deterministic message contracts
+    category: messaging
+    shall: >
+      IX-Style shall define deterministic message contracts for safety-relevant
+      control, monitoring, and evidence flows.
+    verification_hint: inspection
+
+  - id: IXS-SYS-036
+    title: Message integrity checks
+    category: messaging
+    shall: >
+      IX-Style shall support message integrity checks for safety-relevant
+      control-plane traffic.
+    verification_hint: test
+
+  - id: IXS-SYS-037
+    title: Authenticated event origin
+    category: messaging
+    shall: >
+      IX-Style shall support authenticated origin identification for
+      safety-relevant command and mode-management events.
+    verification_hint: test
+
+  - id: IXS-SYS-038
+    title: Replay-aware handling
+    category: messaging
+    shall: >
+      IX-Style shall support replay-aware handling for safety-relevant control
+      events and decision evidence.
+    verification_hint: test
+
+  - id: IXS-SYS-039
+    title: Data class separation
+    category: messaging
+    shall: >
+      IX-Style shall distinguish between advisory data, control data, and
+      evidence records.
+    verification_hint: inspection
+
+  - id: IXS-SYS-040
+    title: Message trust impact on authority
+    category: messaging
+    shall: >
+      IX-Style shall define how loss of trust in a message source affects
+      authority and mode behavior.
+    verification_hint: analysis
+
+  - id: IXS-SYS-041
+    title: Evidence record generation
+    category: evidence
+    shall: >
+      IX-Style shall generate machine-readable evidence records for
+      safety-relevant decisions, vetoes, overrides, mode changes, and fault
+      transitions.
+    verification_hint: test
+
+  - id: IXS-SYS-042
+    title: Evidence content minimums
+    category: evidence
+    shall: >
+      IX-Style shall record the triggering conditions, active inputs,
+      confidence posture, selected mitigation, and command authority state
+      associated with each safety-relevant decision.
+    verification_hint: test
+
+  - id: IXS-SYS-043
+    title: Tamper-evident evidence storage
+    category: evidence
+    shall: >
+      IX-Style shall support append-only or tamper-evident evidence storage
+      patterns for safety-relevant records.
+    verification_hint: inspection
+
+  - id: IXS-SYS-044
+    title: Decision rationale structure
+    category: evidence
+    shall: >
+      IX-Style shall provide a decision rationale structure suitable for
+      operator review and post-event analysis.
+    verification_hint: inspection
+
+  - id: IXS-SYS-045
+    title: Separate routine telemetry from evidence
+    category: evidence
+    shall: >
+      IX-Style shall separate routine telemetry volume from safety-relevant
+      evidence so that review-critical records are not obscured.
+    verification_hint: inspection
+
+  - id: IXS-SYS-046
+    title: Mission-health model
+    category: telemetry
+    shall: >
+      IX-Style shall define a mission-health model that includes system mode,
+      command authority state, confidence posture, active faults, mitigation
+      status, and resource posture.
+    verification_hint: inspection
+
+  - id: IXS-SYS-047
+    title: Operator-visible rationale
+    category: telemetry
+    shall: >
+      IX-Style shall support operator-visible indication of why the system
+      reduced authority, changed mode, or rejected a command.
+    verification_hint: test
+
+  - id: IXS-SYS-048
+    title: Compact event stream
+    category: telemetry
+    shall: >
+      IX-Style shall support a compact event stream suitable for highlighting
+      recent safety-relevant state changes.
+    verification_hint: test
+
+  - id: IXS-SYS-049
+    title: Prioritized operator information
+    category: telemetry
+    shall: >
+      IX-Style shall support prioritization of operator information so that
+      active hazards and mitigation states are more prominent than nominal
+      background data.
+    verification_hint: analysis
+
+  - id: IXS-SYS-050
+    title: Intermittent-link operation
+    category: telemetry
+    shall: >
+      IX-Style shall support delayed-link or intermittent-link operation without
+      assuming continuous operator connectivity.
+    verification_hint: test
+
+  - id: IXS-SYS-051
+    title: Requirements traceability
+    category: verification
+    shall: >
+      IX-Style shall support traceability from requirements to hazards,
+      architecture elements, tests, and evidence artifacts.
+    verification_hint: inspection
+
+  - id: IXS-SYS-052
+    title: Fault-injection strategy support
+    category: verification
+    shall: >
+      IX-Style shall support a fault-injection strategy covering representative
+      sensor, comms, power, timing, and authority-conflict scenarios.
+    verification_hint: test
+
+  - id: IXS-SYS-053
+    title: Simulation-oriented verification
+    category: verification
+    shall: >
+      IX-Style shall support simulation-oriented verification of runtime-
+      assurance and degraded-mode behavior before any hardware integration.
+    verification_hint: test
+
+  - id: IXS-SYS-054
+    title: Monitor and transition pass/fail criteria
+    category: verification
+    shall: >
+      IX-Style shall define pass/fail criteria for safety-relevant monitors and
+      mode transitions.
+    verification_hint: analysis
+
+  - id: IXS-SYS-055
+    title: Repeatable test artifacts
+    category: verification
+    shall: >
+      IX-Style shall support repeatable test artifacts, including scenario
+      identifiers, expected outcomes, and captured evidence outputs.
+    verification_hint: test
+
+  - id: IXS-SYS-056
+    title: Safety intervention timing demonstrability
+    category: verification
+    shall: >
+      IX-Style shall make it possible to demonstrate that safety interventions
+      occur within configured timing bounds appropriate to the target platform.
+    verification_hint: test
+
+  - id: IXS-SYS-057
+    title: Timing validity as first-class concern
+    category: timing
+    shall: >
+      IX-Style shall represent timing validity as a first-class consideration
+      for control and evidence logic.
+    verification_hint: inspection
+
+  - id: IXS-SYS-058
+    title: Degraded timing impact rules
+    category: timing
+    shall: >
+      IX-Style shall define how degraded timing, delayed messages, or missed
+      monitor updates affect command authority and safety posture.
+    verification_hint: analysis
+
+  - id: IXS-SYS-059
+    title: Power-degraded operation
+    category: resources
+    shall: >
+      IX-Style shall support power-degraded operation in which nonessential
+      functions can be reduced while safety-relevant monitoring and mode
+      management remain available.
+    verification_hint: test
+
+  - id: IXS-SYS-060
+    title: Minimum safe-containment functions
+    category: resources
+    shall: >
+      IX-Style shall define minimum essential functions required for safe-hold
+      or equivalent containment behavior.
+    verification_hint: analysis
+
+  - id: IXS-SYS-061
+    title: Hazard register deliverable
+    category: repo_deliverable
+    shall: >
+      IX-Style shall include a hazard register aligned to this requirements
+      baseline.
+    verification_hint: inspection
+
+  - id: IXS-SYS-062
+    title: Mode and authority model deliverable
+    category: repo_deliverable
+    shall: >
+      IX-Style shall include an operational mode and authority model aligned to
+      this requirements baseline.
+    verification_hint: inspection
+
+  - id: IXS-SYS-063
+    title: Message and evidence schemas deliverable
+    category: repo_deliverable
+    shall: >
+      IX-Style shall include a message schema and evidence schema aligned to
+      this requirements baseline.
+    verification_hint: inspection
+
+  - id: IXS-SYS-064
+    title: Verification matrix deliverable
+    category: repo_deliverable
+    shall: >
+      IX-Style shall include a verification matrix aligned to this requirements
+      baseline.
+    verification_hint: inspection
+
+  - id: IXS-SYS-065
+    title: Reference implementation scaffold
+    category: repo_deliverable
+    shall: >
+      IX-Style shall include reference implementation scaffolding sufficient to
+      demonstrate the architecture in simulation.
+    verification_hint: inspection

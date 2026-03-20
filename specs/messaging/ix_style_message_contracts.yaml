@@ -1,0 +1,155 @@
+document:
+  id: IXS-SECURE-MESSAGING-AND-EVIDENCE-ARCHITECTURE
+  title: IX-Style Secure Messaging and Evidence Architecture
+  status: draft
+  version: 0.1.0
+
+message_classes:
+  - id: ADVISORY
+    description: Routine informational traffic not directly authoritative for safety-relevant control.
+  - id: CONTROL
+    description: Safety-relevant commands or command-like intent.
+  - id: MODE_EVENT
+    description: Operational mode or safety posture transition records.
+  - id: TRUST_EVENT
+    description: Trust-state transition or trust-evaluation records.
+  - id: FAULT_EVENT
+    description: FDIR lifecycle records.
+  - id: EVIDENCE
+    description: Review-critical auditable records.
+
+source_kinds:
+  - operator
+  - mission_logic
+  - nominal_autonomy
+  - contingency_logic
+  - safety_supervisor
+  - subsystem
+  - infrastructure
+
+freshness_states:
+  - FRESH
+  - STALE
+  - EXPIRED
+  - TIMING_INVALID
+  - UNKNOWN
+
+replay_states:
+  - NOT_EVALUATED
+  - ACCEPTABLE
+  - DUPLICATE
+  - OUT_OF_SEQUENCE
+  - REPLAY_SUSPECTED
+
+integrity_states:
+  - INTEGRITY_VALID
+  - INTEGRITY_DEGRADED
+  - INTEGRITY_FAILED
+  - AUTH_UNVERIFIED
+  - AUTH_INVALID
+
+review_significance_levels:
+  - ROUTINE
+  - IMPORTANT
+  - HIGH
+  - CRITICAL
+
+common_envelope_fields:
+  - schema_version
+  - message_id
+  - message_class
+  - message_type
+  - source_id
+  - source_kind
+  - created_at
+  - freshness
+  - ordering
+  - causality
+  - integrity
+  - payload
+
+control_payload_required_fields:
+  - function_class
+  - requested_action
+  - requested_scope
+  - requested_magnitude
+  - requested_rate
+  - requested_duration
+  - command_source
+  - policy_context
+  - rationale_summary
+
+event_payload_required_fields:
+  - previous_state
+  - new_state
+  - transition_cause_codes
+  - affected_entity_id
+  - triggering_condition
+  - related_fault_ids
+  - related_trust_record_ids
+  - event_priority
+  - rationale_summary
+
+decision_receipt_required_fields:
+  - decision_id
+  - candidate_action_summary
+  - final_outcome
+  - final_authoritative_source
+  - mission_phase
+  - safety_posture
+  - active_degradation_flags
+  - trust_posture_summary
+  - related_fault_ids
+  - triggered_constraint_ids
+  - policy_evaluation_result
+  - recovery_gate_result
+  - rationale_summary
+  - command_delta
+  - evidence_ordering
+
+causality_fields:
+  - parent_message_id
+  - triggering_event_id
+  - related_fault_ids
+  - related_trust_record_ids
+  - candidate_action_id
+  - supersedes_message_id
+
+message_handling_rules:
+  - id: MSG-RULE-001
+    statement: Delivery success does not imply operational freshness.
+  - id: MSG-RULE-002
+    statement: Control messages must not become authoritative until arbitration and guard evaluation succeed.
+  - id: MSG-RULE-003
+    statement: Evidence records shall remain separable from routine telemetry.
+  - id: MSG-RULE-004
+    statement: Late messages may explain history but shall not silently rewrite earlier authoritative outcomes.
+  - id: MSG-RULE-005
+    statement: Replay-aware handling applies to safety-relevant control and evidence traffic.
+  - id: MSG-RULE-006
+    statement: Safety-relevant messages must carry explicit source and integrity context.
+
+message_types:
+  CONTROL:
+    - control.mode_request
+    - control.guidance_request
+    - control.actuation_request
+    - control.resource_configuration_request
+    - control.recovery_action_request
+    - control.policy_override_request
+  MODE_EVENT:
+    - mode.transition
+    - mode.recovery_gate_result
+  TRUST_EVENT:
+    - trust.transition
+    - trust.check_summary
+  FAULT_EVENT:
+    - fault.lifecycle_update
+    - fault.priority_change
+    - fault.mitigation_update
+  EVIDENCE:
+    - evidence.decision_receipt
+    - evidence.arbitration_receipt
+    - evidence.guard_intervention_receipt
+    - evidence.recovery_receipt
+    - evidence.operator_override_receipt

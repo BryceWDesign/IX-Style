@@ -1,0 +1,130 @@
+document:
+  id: IXS-MISSION-HEALTH-AND-OPERATOR-SUPPORT
+  title: IX-Style Mission Health and Operator Decision-Support Architecture
+  status: draft
+  version: 0.1.0
+
+mission_health_snapshot_fields:
+  - snapshot_id
+  - snapshot_time
+  - mission_phase
+  - dominant_safety_posture
+  - containment_status
+  - review_significance
+  - authority_summary
+  - trust_summary
+  - active_fault_summary
+  - recovery_summary
+  - resource_summary
+  - recent_critical_event_count
+  - delayed_link_indicator
+
+containment_states:
+  - id: CONTAINMENT_NONE
+    description: No active containment bias beyond standard runtime assurance.
+  - id: CONTAINMENT_ELEVATED
+    description: Containment bias is increasing due to degradation or rising risk.
+  - id: CONTAINMENT_ACTIVE
+    description: Bounded degraded or safe-hold behavior is actively constraining operation.
+  - id: CONTAINMENT_LOCKED
+    description: Containment posture is sticky and authority expansion is blocked pending recovery qualification.
+
+recovery_states:
+  - id: RECOVERY_NOT_APPLICABLE
+    description: No active recovery path is relevant.
+  - id: RECOVERY_BLOCKED
+    description: Recovery is currently not allowed.
+  - id: RECOVERY_PENDING_EVIDENCE
+    description: Recovery needs more persistence or corroboration evidence.
+  - id: RECOVERY_UNDER_REVIEW
+    description: Recovery qualification is being actively evaluated.
+  - id: RECOVERY_QUALIFIED
+    description: Recovery conditions appear satisfied but may await execution.
+  - id: RECOVERY_EXECUTED
+    description: Recovery has been applied.
+
+authority_summary_fields:
+  - dominant_authoritative_source
+  - nominal_autonomy_status
+  - contingency_logic_status
+  - safety_supervisor_bias
+  - remote_operator_command_status
+  - frozen_command_paths
+  - recovery_action_status
+
+trust_summary_domains:
+  - navigation_trust
+  - sensor_source_aggregate_trust
+  - derived_state_trust
+  - timing_trust
+  - actuator_confidence
+  - assurance_confidence
+  - control_plane_message_trust
+
+active_fault_summary_fields:
+  - highest_active_fault_priority
+  - active_fault_count
+  - blocking_latched_fault_count
+  - top_fault_ids
+  - mitigation_in_progress
+  - mitigation_failure_flag
+
+safety_event_required_fields:
+  - event_id
+  - event_time
+  - event_class
+  - event_type
+  - review_significance
+  - summary
+  - affected_scope
+  - related_fault_ids
+  - related_trust_record_ids
+  - resulting_safety_posture
+  - resulting_authority_implication
+  - linked_evidence_id
+
+review_significance_levels:
+  - ROUTINE
+  - IMPORTANT
+  - HIGH
+  - CRITICAL
+
+event_priority_examples:
+  CRITICAL:
+    - safe_hold_entry
+    - containment_lock
+    - assurance_path_collapse
+    - rejected_recovery_during_serious_degradation
+    - multi_fault_containment_escalation
+  HIGH:
+    - dominant_posture_change
+    - navigation_trust_collapse
+    - actuator_confidence_collapse
+    - high_priority_fault_confirmation
+    - policy_override_denial_in_degraded_state
+  IMPORTANT:
+    - guard_clamp_or_substitute
+    - degraded_trust_transition
+    - comms_reconciliation_result
+    - mitigation_start_or_failure
+    - recovery_gate_result
+  ROUTINE:
+    - bounded_advisory_posture_update
+    - non_posture_driving_local_degradation
+    - informational_evidence_marker
+
+operator_rationale_requirements:
+  - what_changed
+  - why_it_changed
+  - what_limitation_now_applies
+  - what_would_need_to_improve_for_restoration
+
+recommended_operator_view_order:
+  - safety_posture_banner
+  - containment_and_recovery_status
+  - authority_summary
+  - trust_summary
+  - active_high_priority_faults
+  - current_mitigation_summary
+  - recent_safety_event_stream
+  - detailed_evidence_drilldown

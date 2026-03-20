@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ix-style/schemas/telemetry/mission_health_snapshot.schema.json",
+  "title": "IX-Style Mission Health Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "snapshot_time",
+    "mission_phase",
+    "dominant_safety_posture",
+    "containment_status",
+    "review_significance",
+    "authority_summary",
+    "trust_summary",
+    "active_fault_summary",
+    "recovery_summary",
+    "resource_summary",
+    "recent_events"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshot_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mission_phase": {
+      "type": "string"
+    },
+    "dominant_safety_posture": {
+      "type": "string"
+    },
+    "containment_status": {
+      "type": "string",
+      "enum": [
+        "CONTAINMENT_NONE",
+        "CONTAINMENT_ELEVATED",
+        "CONTAINMENT_ACTIVE",
+        "CONTAINMENT_LOCKED"
+      ]
+    },
+    "review_significance": {
+      "type": "string",
+      "enum": [
+        "ROUTINE",
+        "IMPORTANT",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "authority_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dominant_authoritative_source",
+        "nominal_autonomy_status",
+        "safety_supervisor_bias",
+        "remote_operator_command_status"
+      ],
+      "properties": {
+        "dominant_authoritative_source": {
+          "type": "string"
+        },
+        "nominal_autonomy_status": {
+          "type": "string",
+          "enum": [
+            "NORMAL",
+            "NARROWED",
+            "BLOCKED",
+            "SUSPENDED"
+          ]
+        },
+        "contingency_logic_status": {
+          "type": "string",
+          "enum": [
+            "INACTIVE",
+            "AVAILABLE",
+            "ACTIVE",
+            "DOMINANT_FOR_SCOPE"
+          ]
+        },
+        "safety_supervisor_bias": {
+          "type": "string",
+          "enum": [
+            "NORMAL",
+            "ELEVATED",
+            "CONTAINMENT_BIASED",
+            "LOCKED_CONTAINMENT"
+          ]
+        },
+        "remote_operator_command_status": {
+          "type": "string",
+          "enum": [
+            "ACCEPTED",
+            "DEFERRED",
+            "STALE_REJECTED",
+            "AUTH_REJECTED",
+            "LINK_UNAVAILABLE"
+          ]
+        },
+        "frozen_command_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "recovery_action_status": {
+          "type": "string",
+          "enum": [
+            "NOT_APPLICABLE",
+            "ALLOWED",
+            "BLOCKED",
+            "UNDER_REVIEW",
+            "QUALIFIED"
+          ]
+        }
+      }
+    },
+    "trust_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "navigation_trust",
+        "sensor_source_aggregate_trust",
+        "derived_state_trust",
+        "timing_trust",
+        "actuator_confidence",
+        "assurance_confidence"
+      ],
+      "properties": {
+        "navigation_trust": {
+          "type": "string"
+        },
+        "sensor_source_aggregate_trust": {
+          "type": "string"
+        },
+        "derived_state_trust": {
+          "type": "string"
+        },
+        "timing_trust": {
+          "type": "string"
+        },
+        "actuator_confidence": {
+          "type": "string"
+        },
+        "assurance_confidence": {
+          "type": "string"
+        },
+        "control_plane_message_trust": {
+          "type": "string"
+        },
+        "posture_driving_trust_domain": {
+          "type": "string"
+        },
+        "recent_trust_transition_summaries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5
+        }
+      }
+    },
+    "active_fault_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "highest_active_fault_priority",
+        "active_fault_count",
+        "blocking_latched_fault_count"
+      ],
+      "properties": {
+        "highest_active_fault_priority": {
+          "type": "string",
+          "enum": [
+            "P1_CONTAINMENT_CRITICAL",
+            "P2_HIGH",
+            "P3_MODERATE",
+            "P4_LOW",
+            "NONE"
+          ]
+        },
+        "active_fault_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocking_latched_fault_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "top_fault_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "mitigation_in_progress": {
+          "type": "boolean"
+        },
+        "mitigation_failure_flag": {
+          "type": "boolean"
+        }
+      }
+    },
+    "recovery_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recovery_state"
+      ],
+      "properties": {
+        "recovery_state": {
+          "type": "string",
+          "enum": [
+            "RECOVERY_NOT_APPLICABLE",
+            "RECOVERY_BLOCKED",
+            "RECOVERY_PENDING_EVIDENCE",
+            "RECOVERY_UNDER_REVIEW",
+            "RECOVERY_QUALIFIED",
+            "RECOVERY_EXECUTED"
+          ]
+        },
+        "blocking_reason_summary": {
+          "type": "string"
+        },
+        "related_fault_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "recovery_gate_result": {
+          "type": "string",
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "DEFERRED",
+            "NOT_APPLICABLE"
+          ]
+        }
+      }
+    },
+    "resource_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resource_posture"
+      ],
+      "properties": {
+        "resource_posture": {
+          "type": "string"
+        },
+        "essential_functions_preserved": {
+          "type": "boolean"
+        },
+        "load_shed_active": {
+          "type": "boolean"
+        },
+        "safe_hold_support_capable": {
+          "type": "boolean"
+        },
+        "survivability_bias_active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "delayed_link_indicator": {
+      "type": "boolean"
+    },
+    "recent_critical_event_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "recent_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "event_time",
+          "event_class",
+          "event_type",
+          "review_significance",
+          "summary"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "event_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event_class": {
+            "type": "string",
+            "enum": [
+              "MODE_EVENT",
+              "TRUST_EVENT",
+              "FAULT_EVENT",
+              "EVIDENCE"
+            ]
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "review_significance": {
+            "type": "string",
+            "enum": [
+              "ROUTINE",
+              "IMPORTANT",
+              "HIGH",
+              "CRITICAL"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "affected_scope": {
+            "type": "string"
+          },
+          "related_fault_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "related_trust_record_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "resulting_safety_posture": {
+            "type": "string"
+          },
+          "resulting_authority_implication": {
+            "type": "string"
+          },
+          "linked_evidence_id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ix-style/schemas/evidence/decision_receipt.schema.json",
+  "title": "IX-Style Decision Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "message_id",
+    "message_class",
+    "message_type",
+    "source_id",
+    "source_kind",
+    "created_at",
+    "ordering",
+    "integrity",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "message_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "message_class": {
+      "type": "string",
+      "const": "EVIDENCE"
+    },
+    "message_type": {
+      "type": "string",
+      "const": "evidence.decision_receipt"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": [
+        "operator",
+        "mission_logic",
+        "nominal_autonomy",
+        "contingency_logic",
+        "safety_supervisor",
+        "subsystem",
+        "infrastructure"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ordering": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence_number",
+        "session_id",
+        "review_significance"
+      ],
+      "properties": {
+        "sequence_number": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parent_message_id": {
+          "type": "string"
+        },
+        "triggering_event_id": {
+          "type": "string"
+        },
+        "review_significance": {
+          "type": "string",
+          "enum": [
+            "ROUTINE",
+            "IMPORTANT",
+            "HIGH",
+            "CRITICAL"
+          ]
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "integrity_state"
+      ],
+      "properties": {
+        "integrity_state": {
+          "type": "string",
+          "enum": [
+            "INTEGRITY_VALID",
+            "INTEGRITY_DEGRADED",
+            "INTEGRITY_FAILED"
+          ]
+        },
+        "signature_present": {
+          "type": "boolean"
+        },
+        "chain_hash": {
+          "type": "string"
+        },
+        "verification_rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "candidate_action_summary",
+        "final_outcome",
+        "final_authoritative_source",
+        "mission_phase",
+        "safety_posture",
+        "policy_evaluation_result",
+        "rationale_summary"
+      ],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_action_summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "function_class",
+            "requested_action",
+            "requested_by"
+          ],
+          "properties": {
+            "function_class": {
+              "type": "string"
+            },
+            "requested_action": {
+              "type": "string"
+            },
+            "requested_by": {
+              "type": "string"
+            },
+            "requested_scope": {
+              "type": "string"
+            },
+            "requested_magnitude": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "requested_duration_ms": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          }
+        },
+        "final_outcome": {
+          "type": "string",
+          "enum": [
+            "ACCEPT",
+            "REJECT",
+            "VETO",
+            "CLAMP",
+            "SUBSTITUTE",
+            "DEFER",
+            "FREEZE",
+            "ESCALATE_TO_MODE_CHANGE"
+          ]
+        },
+        "final_authoritative_source": {
+          "type": "string",
+          "enum": [
+            "OPERATOR",
+            "MISSION_LOGIC",
+            "NOMINAL_AUTONOMY",
+            "CONTINGENCY_LOGIC",
+            "SAFETY_SUPERVISOR",
+            "NONE"
+          ]
+        },
+        "mission_phase": {
+          "type": "string"
+        },
+        "safety_posture": {
+          "type": "string"
+        },
+        "active_degradation_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "trust_posture_summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "navigation_trust": {
+              "type": "string"
+            },
+            "sensor_trust": {
+              "type": "string"
+            },
+            "timing_trust": {
+              "type": "string"
+            },
+            "actuator_confidence": {
+              "type": "string"
+            },
+            "assurance_confidence": {
+              "type": "string"
+            }
+          }
+        },
+        "related_fault_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "triggered_constraint_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "policy_evaluation_result": {
+          "type": "string",
+          "enum": [
+            "ALLOWED",
+            "DENIED",
+            "CONDITIONALLY_ALLOWED",
+            "DEFERRED",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "recovery_gate_result": {
+          "type": "string",
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "NOT_APPLICABLE",
+            "DEFERRED"
+          ]
+        },
+        "command_delta": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "change_type": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "CLAMPED",
+                "SUBSTITUTED",
+                "BLOCKED",
+                "DEFERRED",
+                "FROZEN"
+              ]
+            },
+            "original_summary": {
+              "type": "string"
+            },
+            "final_summary": {
+              "type": "string"
+            }
+          }
+        },
+        "mode_escalation_requested": {
+          "type": "boolean"
+        },
+        "resulting_mode_target": {
+          "type": "string"
+        },
+        "rationale_summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

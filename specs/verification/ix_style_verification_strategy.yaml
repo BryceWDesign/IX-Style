@@ -1,0 +1,121 @@
+document:
+  id: IXS-VERIFICATION-AND-TRACEABILITY-STRATEGY
+  title: IX-Style Verification and Traceability Strategy
+  status: draft
+  version: 0.1.0
+
+verification_layers:
+  - id: SPECIFICATION_INSPECTION
+    purpose: Verify document, requirement, and schema coherence.
+  - id: STATIC_VALIDATION
+    purpose: Verify structured artifacts without dynamic execution.
+  - id: BEHAVIORAL_SIMULATION
+    purpose: Exercise expected architecture behavior under representative scenarios.
+  - id: FAULT_INJECTION
+    purpose: Intentionally inject abnormal conditions and verify containment.
+  - id: PROPERTY_INVARIANT_VERIFICATION
+    purpose: Check architecture truths that should never be violated.
+  - id: HIL_ORIENTED_READINESS
+    purpose: Prepare for later hardware-facing validation honestly.
+
+verification_methods:
+  - INSPECTION
+  - ANALYSIS
+  - SCHEMA_VALIDATION
+  - SIMULATION
+  - FAULT_INJECTION
+  - LOG_REPLAY
+  - PROPERTY_TEST
+  - TIMING_OBSERVATION
+  - TRACEABILITY_AUDIT
+
+traceability_entities:
+  - REQ
+  - HZ
+  - ARCH
+  - MON
+  - RULE
+  - MODE
+  - MSG
+  - TEST
+  - EV
+
+required_relationships:
+  - requirement_to_hazard
+  - hazard_to_architecture
+  - architecture_to_monitor_or_rule
+  - monitor_or_rule_to_test
+  - test_to_expected_evidence
+  - evidence_to_verification_claim
+
+scenario_families:
+  - TRUST_SCENARIO
+  - AUTHORITY_SCENARIO
+  - GUARD_SCENARIO
+  - FDIR_SCENARIO
+  - MODE_SCENARIO
+  - EVIDENCE_SCENARIO
+  - RESOURCE_SCENARIO
+  - MULTI_FAULT_SCENARIO
+  - RECOVERY_SCENARIO
+
+invariants:
+  - id: INV-001
+    statement: Every safety-relevant control request passes through authority evaluation.
+  - id: INV-002
+    statement: Every safety-relevant accepted or modified action passes through guard evaluation.
+  - id: INV-003
+    statement: No stale remote control request becomes authoritative.
+  - id: INV-004
+    statement: No direct restoration to full authority occurs without recovery gate evaluation.
+  - id: INV-005
+    statement: Every safety-relevant arbitration outcome emits a decision receipt.
+  - id: INV-006
+    statement: Every dominant posture change emits an event record.
+  - id: INV-007
+    statement: A degraded assurance posture reduces or blocks dependent high-risk actions.
+  - id: INV-008
+    statement: Safe-hold exit cannot occur silently.
+  - id: INV-009
+    statement: A message accepted as authoritative has valid freshness and integrity posture.
+  - id: INV-010
+    statement: Critical containment scenarios preserve review-critical evidence ordering.
+
+required_fault_injection_families:
+  - stale_or_missing_sensor_data
+  - implausible_sensor_jump
+  - estimator_divergence_suspicion
+  - navigation_corroboration_loss
+  - spoof_suspected_navigation_discontinuity
+  - stale_operator_command
+  - out_of_sequence_control_message
+  - replay_suspected_control_message
+  - comms_loss_during_degraded_posture
+  - power_margin_collapse
+  - actuator_non_response_or_lag
+  - assurance_guard_unhealthy
+  - evidence_sink_degradation
+  - concurrent_trust_and_comms_fault
+  - concurrent_actuator_and_resource_fault
+  - blocked_recovery_attempt_under_unresolved_trust_issue
+
+verification_package_fields:
+  - scenario_id
+  - scenario_purpose
+  - linked_requirements
+  - linked_hazards
+  - test_method
+  - expected_outcomes
+  - actual_observed_outcomes
+  - generated_event_ids
+  - generated_receipt_ids
+  - pass_fail_result
+  - rationale
+  - limitations_or_assumptions
+
+timing_intent:
+  - monitor_update_cadence
+  - freshness_invalidation_handling
+  - guard_evaluation_before_execution
+  - evidence_ordering_under_stress
+  - intervention_timing_relative_to_candidate_processing

@@ -1,0 +1,166 @@
+traceability_records:
+  - trace_id: TR-001
+    requirement_id: IXS-SYS-003
+    hazard_ids:
+      - IXS-HZ-009
+      - IXS-HZ-011
+    architecture_ids:
+      - IXS-RUNTIME-ASSURANCE-GUARD
+      - IXS-COMMAND-AUTHORITY-MODEL
+    monitor_ids:
+      - MON-GUARD-ELIGIBILITY
+      - MON-GUARD-CONSTRAINT-SCREEN
+    rule_ids:
+      - AUTH-RULE-A
+      - GUARD-LAYER-INTERVENTION
+    mode_ids:
+      - SAFE_HOLD
+      - ASSURANCE_DEGRADED
+    message_schema_ids:
+      - control_message.schema.json
+      - decision_receipt.schema.json
+    planned_test_ids:
+      - TEST-GUARD-001
+      - TEST-AUTH-003
+    expected_evidence_ids:
+      - EV-DECISION-RECEIPT
+      - EV-GUARD-INTERVENTION
+    notes: Unsafe commands must be vetoed, clamped, substituted, frozen, or escalated with evidence.
+
+  - trace_id: TR-002
+    requirement_id: IXS-SYS-015
+    hazard_ids:
+      - IXS-HZ-003
+      - IXS-HZ-002
+    architecture_ids:
+      - IXS-SENSOR-TRUST-AND-ESTIMATION-FRAMEWORK
+      - IXS-OPERATIONAL-MODE-MODEL
+    monitor_ids:
+      - MON-NAV-CORROBORATION
+      - MON-NAV-CONTINUITY
+      - MON-ESTIMATOR-NAV-CONSISTENCY
+    rule_ids:
+      - TRUST-RULE-001
+      - TRUST-RULE-005
+    mode_ids:
+      - NAV_DEGRADED
+      - SAFE_HOLD
+    message_schema_ids:
+      - decision_receipt.schema.json
+    planned_test_ids:
+      - TEST-TRUST-004
+      - TEST-MODE-002
+    expected_evidence_ids:
+      - EV-TRUST-TRANSITION
+      - EV-MODE-TRANSITION
+    notes: Navigation trust degradation must narrow behavior and create evidence.
+
+  - trace_id: TR-003
+    requirement_id: IXS-SYS-034
+    hazard_ids:
+      - IXS-HZ-010
+    architecture_ids:
+      - IXS-OPERATIONAL-MODE-MODEL
+      - IXS-FDIR-ARCHITECTURE
+      - IXS-COMMAND-AUTHORITY-MODEL
+    monitor_ids:
+      - MON-RECOVERY-GATE
+      - MON-PERSISTENCE-CHECK
+    rule_ids:
+      - MODE-RULE-005
+      - MODE-RULE-006
+    mode_ids:
+      - SAFE_HOLD
+      - SENSOR_DEGRADED
+      - NAV_DEGRADED
+    message_schema_ids:
+      - decision_receipt.schema.json
+    planned_test_ids:
+      - TEST-RECOVERY-002
+      - TEST-MODE-004
+    expected_evidence_ids:
+      - EV-RECOVERY-RECEIPT
+      - EV-MODE-TRANSITION
+    notes: Full-authority restoration must never occur silently.
+
+  - trace_id: TR-004
+    requirement_id: IXS-SYS-038
+    hazard_ids:
+      - IXS-HZ-012
+      - IXS-HZ-004
+    architecture_ids:
+      - IXS-SECURE-MESSAGING-AND-EVIDENCE-ARCHITECTURE
+      - IXS-COMMAND-AUTHORITY-MODEL
+    monitor_ids:
+      - MON-REPLAY-CHECK
+      - MON-ORDERING-CHECK
+      - MON-FRESHNESS-CHECK
+    rule_ids:
+      - MSG-RULE-004
+      - MSG-RULE-005
+    mode_ids:
+      - COMMS_DEGRADED
+    message_schema_ids:
+      - control_message.schema.json
+    planned_test_ids:
+      - TEST-MSG-003
+      - TEST-AUTH-005
+    expected_evidence_ids:
+      - EV-ARBITRATION-RECEIPT
+    notes: Replay-suspected or out-of-sequence control traffic must not become valid authority.
+
+  - trace_id: TR-005
+    requirement_id: IXS-SYS-043
+    hazard_ids:
+      - IXS-HZ-013
+      - IXS-HZ-015
+    architecture_ids:
+      - IXS-SECURE-MESSAGING-AND-EVIDENCE-ARCHITECTURE
+      - IXS-RUNTIME-ASSURANCE-GUARD
+    monitor_ids:
+      - MON-EVIDENCE-PATH-HEALTH
+      - MON-RECEIPT-COMPLETE
+    rule_ids:
+      - MSG-RULE-003
+      - MSG-RULE-006
+    mode_ids:
+      - ASSURANCE_DEGRADED
+      - SAFE_HOLD
+    message_schema_ids:
+      - decision_receipt.schema.json
+    planned_test_ids:
+      - TEST-EVIDENCE-002
+      - TEST-ASSURANCE-003
+    expected_evidence_ids:
+      - EV-DECISION-RECEIPT
+      - EV-EVIDENCE-HEALTH-EVENT
+    notes: Review-critical evidence must remain tamper-evident in intent and structurally complete.
+
+  - trace_id: TR-006
+    requirement_id: IXS-SYS-059
+    hazard_ids:
+      - IXS-HZ-006
+      - IXS-HZ-016
+    architecture_ids:
+      - IXS-OPERATIONAL-MODE-MODEL
+      - IXS-FDIR-ARCHITECTURE
+      - IXS-RUNTIME-ASSURANCE-GUARD
+    monitor_ids:
+      - MON-RESOURCE-FLOOR
+      - MON-ESSENTIAL-FUNCTION-PRESERVATION
+    rule_ids:
+      - GUARD-RESOURCE-SURVIVABILITY
+      - MODE-POWER-DEGRADED
+    mode_ids:
+      - POWER_DEGRADED
+      - SAFE_HOLD
+    message_schema_ids:
+      - decision_receipt.schema.json
+      - mission_health_snapshot.schema.json
+    planned_test_ids:
+      - TEST-RESOURCE-001
+      - TEST-MULTI-002
+    expected_evidence_ids:
+      - EV-DECISION-RECEIPT
+      - EV-MODE-TRANSITION
+    notes: Nonessential behavior must be shed before essential safety functions.

@@ -7,13 +7,14 @@ from datetime import datetime
 from typing import Any
 
 from ix_style.core import DecisionPipeline, DecisionPipelineContext
-from ix_style.core.enums import FaultLifecycleState, TrustDomain, TrustState
+from ix_style.core.enums import FaultLifecycleState
 from ix_style.core.ids import IdFactory
 from ix_style.fdir import BasicFDIREngine, FaultClass
-from ix_style.fdir.models import FDIREvaluationResult, FaultRecord, FaultTransition
+from ix_style.fdir.models import FDIREvaluationResult, FaultRecord
+from ix_style.modes import ModeAllocationInput, ModeAllocationResult, ModeAllocator
 from ix_style.trust import BasicTrustEvaluator
 from ix_style.trust.cause_codes import TRUST_CAUSE_NAV_SPOOF_SUSPECTED
-from ix_style.trust.models import TrustEvaluationResult, TrustRecord, TrustTransition
+from ix_style.trust.models import TrustEvaluationResult, TrustRecord
 
 from .models import (
     EvidencePackage,
@@ -24,11 +25,12 @@ from .models import (
 
 @dataclass(slots=True)
 class ScenarioRunner:
-    """Runs one IX-Style scenario through trust, FDIR, and decision pipeline stages."""
+    """Runs one IX-Style scenario through trust, FDIR, mode, and decision stages."""
 
     pipeline: DecisionPipeline = DecisionPipeline()
     trust_evaluator: BasicTrustEvaluator = BasicTrustEvaluator()
     fdir_engine: BasicFDIREngine = BasicFDIREngine()
+    mode_allocator: ModeAllocator = ModeAllocator()
     id_factory: IdFactory = IdFactory()
 
     def run(self, scenario: VerificationScenario) -> VerificationResult:
@@ -58,6 +60,15 @@ class ScenarioRunner:
             trust_records=trust_records,
             fault_records=fault_records,
         )
+        mode_result = self.mode_allocator.evaluate(
+            ModeAllocationInput(
+                base_posture=scenario.safety_posture,
+                active_degradation_flags=derived_flags,
+                trust_records=trust_records,
+                fault_records=fault_records,
+            )
+        )
+
         related_fault_ids = tuple(
             record.fault_id
             for record in fault_records.values()
@@ -68,7 +79,7 @@ class ScenarioRunner:
             DecisionPipelineContext(
                 envelope=scenario.envelope,
                 mission_phase=scenario.mission_phase,
-                safety_posture=scenario.safety_posture,
+                safety_posture=mode_result.dominant_posture,
                 active_degradation_flags=derived_flags,
                 related_fault_ids=related_fault_ids,
             )
@@ -85,6 +96,7 @@ class ScenarioRunner:
 
         trust_events = self._build_transition_event_records(trust_results)
         fault_events = self._build_transition_event_records(fault_results)
+        mode_events = self._build_transition_event_records([mode_result])
 
         evidence_package = EvidencePackage(
             scenario_id=scenario.scenario_id,
@@ -94,6 +106,7 @@ class ScenarioRunner:
             generated_event_ids=tuple(
                 [event["event_id"] for event in trust_events]
                 + [event["event_id"] for event in fault_events]
+                + [event["event_id"] for event in mode_events]
             ),
             generated_receipt_ids=(pipeline_result.decision_id,),
             expected_outcomes=self._expected_outcomes_dict(scenario),
@@ -103,13 +116,16 @@ class ScenarioRunner:
                     pipeline_result.receipt_payload.final_authoritative_source.value
                 ),
                 "derived_active_degradation_flags": list(derived_flags),
+                "derived_dominant_safety_posture": mode_result.dominant_posture.value,
                 "trust_transition_count": len(trust_events),
                 "fault_transition_count": len(fault_events),
+                "mode_transition_count": len(mode_events),
                 "related_fault_ids": list(related_fault_ids),
             },
             decision_receipt=pipeline_result.receipt_payload.as_dict(),
             trust_transitions=tuple(trust_events),
             fault_transitions=tuple(fault_events),
+            mode_transitions=tuple(mode_events),
             pass_fail_result=passed,
             rationale=(
                 "scenario satisfied all declared expectations"
@@ -125,6 +141,7 @@ class ScenarioRunner:
             passed=passed,
             failures=tuple(failures),
             derived_active_degradation_flags=derived_flags,
+            derived_dominant_safety_posture=mode_result.dominant_posture,
             trust_records=trust_records,
             fault_records=fault_records,
         )
@@ -147,28 +164,28 @@ class ScenarioRunner:
         flags: list[str] = list(scenario.active_degradation_flags)
 
         for record in trust_records.values():
-            if record.current_trust_state not in {
-                TrustState.DEGRADED,
-                TrustState.SUSPECT,
-                TrustState.UNTRUSTED,
-                TrustState.UNAVAILABLE,
+            if record.current_trust_state.value not in {
+                "DEGRADED",
+                "SUSPECT",
+                "UNTRUSTED",
+                "UNAVAILABLE",
             }:
                 continue
 
-            if record.trust_domain is TrustDomain.NAVIGATION_TRUST:
+            if record.trust_domain.value == "NAVIGATION_TRUST":
                 if TRUST_CAUSE_NAV_SPOOF_SUSPECTED in record.transition_cause_codes:
                     flags.append("nav_spoof_suspected")
                 else:
                     flags.append("nav_corroboration_lost")
-            elif record.trust_domain is TrustDomain.SENSOR_SOURCE_TRUST:
+            elif record.trust_domain.value == "SENSOR_SOURCE_TRUST":
                 flags.append("sensor_trust_low")
-            elif record.trust_domain is TrustDomain.TIMING_TRUST:
+            elif record.trust_domain.value == "TIMING_TRUST":
                 flags.append("timing_validity_low")
-            elif record.trust_domain is TrustDomain.MESSAGE_TRUST:
+            elif record.trust_domain.value == "MESSAGE_TRUST":
                 flags.append("command_freshness_low")
-            elif record.trust_domain is TrustDomain.ACTUATOR_CONFIDENCE:
+            elif record.trust_domain.value == "ACTUATOR_CONFIDENCE":
                 flags.append("actuator_response_uncertain")
-            elif record.trust_domain is TrustDomain.ASSURANCE_CONFIDENCE:
+            elif record.trust_domain.value == "ASSURANCE_CONFIDENCE":
                 flags.append("assurance_guard_unhealthy")
 
         for record in fault_records.values():
@@ -249,20 +266,19 @@ class ScenarioRunner:
 
         return failures
 
-    def _build_transition_event_records(
-        self,
-        results: list[TrustEvaluationResult] | list[FDIREvaluationResult],
-    ) -> list[dict[str, Any]]:
+    def _build_transition_event_records(self, results: list[Any]) -> list[dict[str, Any]]:
         events: list[dict[str, Any]] = []
         for result in results:
-            transition = result.transition
+            transition = getattr(result, "transition", None)
+            rationale_summary = getattr(result, "rationale_summary", "")
             if transition is None:
                 continue
+            transition_time = getattr(transition, "transition_time")
             events.append(
                 {
                     "event_id": self.id_factory.event_id(),
-                    "event_time": self._serialize_time(transition.transition_time),
-                    "summary": result.rationale_summary,
+                    "event_time": self._serialize_time(transition_time),
+                    "summary": rationale_summary,
                     "payload": self._serialize_dataclass(transition),
                 }
             )

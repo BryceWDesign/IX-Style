@@ -1,0 +1,51 @@
+document:
+  id: IXS-INVARIANT-CHECKS-AND-PROPERTY-LAYER
+  title: IX-Style Invariant Checks and Property Layer
+  status: draft
+  version: 0.1.0
+
+baseline_invariants:
+  - id: IXS-INV-001
+    name: recovery_gate_blocks_before_authority_progression
+    description: >
+      If recovery gate status is FAILED or DEFERRED, authority and guard stages
+      must not proceed.
+  - id: IXS-INV-002
+    name: authority_accepted_commands_reach_guard_evaluation
+    description: >
+      If a candidate command passes recovery gating and authority accepts it,
+      guard evaluation must occur.
+  - id: IXS-INV-003
+    name: recovery_actions_require_recovery_gate_evidence
+    description: >
+      Recovery-action requests must not report NOT_APPLICABLE for recovery-gate
+      result.
+  - id: IXS-INV-004
+    name: posture_changes_emit_mode_transition_records
+    description: >
+      If dominant posture differs from base posture, at least one mode
+      transition record must exist.
+  - id: IXS-INV-005
+    name: decision_receipts_have_required_explanatory_fields
+    description: >
+      Decision receipts must include decision ID, final outcome, rationale
+      summary, recovery-gate result, and candidate action summary.
+  - id: IXS-INV-006
+    name: evidence_bundles_validate_cleanly
+    description: >
+      Exported evidence bundles must pass tamper-evident validation.
+
+required_decision_receipt_fields:
+  - decision_id
+  - final_outcome
+  - rationale_summary
+  - recovery_gate_result
+  - candidate_action_summary
+
+recovery_gate_blocking_statuses:
+  - FAILED
+  - DEFERRED
+
+recovery_gate_blocked_expected_outcomes:
+  FAILED: REJECT
+  DEFERRED: DEFER

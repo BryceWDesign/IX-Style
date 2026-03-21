@@ -13,6 +13,7 @@ from jsonschema import Draft202012Validator
 
 CONTROL_MESSAGE_SCHEMA = "schemas/messages/control_message.schema.json"
 DECISION_RECEIPT_SCHEMA = "schemas/evidence/decision_receipt.schema.json"
+MISSION_HEALTH_SNAPSHOT_SCHEMA = "schemas/telemetry/mission_health_snapshot.schema.json"
 
 
 class SchemaValidationError(ValueError):

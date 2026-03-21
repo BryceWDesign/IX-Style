@@ -11,7 +11,7 @@ from ix_style.core.enums import FaultLifecycleState
 from ix_style.core.ids import IdFactory
 from ix_style.fdir import BasicFDIREngine, FaultClass
 from ix_style.fdir.models import FDIREvaluationResult, FaultRecord
-from ix_style.modes import ModeAllocationInput, ModeAllocationResult, ModeAllocator
+from ix_style.modes import ModeAllocationInput, ModeAllocator
 from ix_style.trust import BasicTrustEvaluator
 from ix_style.trust.cause_codes import TRUST_CAUSE_NAV_SPOOF_SUSPECTED
 from ix_style.trust.models import TrustEvaluationResult, TrustRecord
@@ -82,6 +82,8 @@ class ScenarioRunner:
                 safety_posture=mode_result.dominant_posture,
                 active_degradation_flags=derived_flags,
                 related_fault_ids=related_fault_ids,
+                trust_records=trust_records,
+                fault_records=fault_records,
             )
         )
 
@@ -115,6 +117,7 @@ class ScenarioRunner:
                 "final_authoritative_source": (
                     pipeline_result.receipt_payload.final_authoritative_source.value
                 ),
+                "recovery_gate_result": pipeline_result.receipt_payload.recovery_gate_result,
                 "derived_active_degradation_flags": list(derived_flags),
                 "derived_dominant_safety_posture": mode_result.dominant_posture.value,
                 "trust_transition_count": len(trust_events),

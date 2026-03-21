@@ -41,7 +41,7 @@ class VerificationScenario:
     trust_checks: tuple[TrustCheckInput, ...] = ()
     fault_signals: tuple[FDIRSignal, ...] = ()
     active_degradation_flags: tuple[str, ...] = ()
-    expectations: VerificationExpectation = VerificationExpectation()
+    expectations: VerificationExpectation = field(default_factory=VerificationExpectation)
     limitations_or_assumptions: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:

@@ -32,3 +32,6 @@ jobs:
 
       - name: Run automated sample scenarios
         run: python scripts/run_sample_scenarios.py
+
+      - name: Run invariant checks
+        run: python scripts/run_invariant_checks.py

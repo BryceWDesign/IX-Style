@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final, Protocol
 
 from ix_style.core.enums import (
@@ -63,7 +63,7 @@ class TrustEvaluator(Protocol):
 class BasicTrustEvaluator:
     """Deterministic first-pass trust evaluator for IX-Style."""
 
-    id_factory: IdFactory = IdFactory()
+    id_factory: IdFactory = field(default_factory=IdFactory)
 
     def evaluate(
         self,

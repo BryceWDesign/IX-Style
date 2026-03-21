@@ -18,13 +18,10 @@ from ix_style.core import (
     OrderingMetadata,
     ReplayState,
     SafetyPosture,
+    TrustDomain,
 )
 from ix_style.fdir import FDIRSignal, FaultClass, FaultSeverity
-from ix_style.trust import (
-    TRUST_CAUSE_NAV_SPOOF_SUSPECTED,
-    BasicTrustEvaluator,
-    TrustCheckInput,
-)
+from ix_style.trust import TRUST_CAUSE_NAV_SPOOF_SUSPECTED, TrustCheckInput
 from ix_style.verification import (
     ScenarioRunner,
     VerificationExpectation,
@@ -132,14 +129,7 @@ def test_runner_tracks_navigation_trust_transition_even_when_command_is_allowed(
         safety_posture=SafetyPosture.NOMINAL,
         trust_checks=(
             TrustCheckInput(
-                trust_domain=BasicTrustEvaluator().evaluate(
-                    record=None,
-                    check=TrustCheckInput(
-                        trust_domain=__import__("ix_style.core.enums", fromlist=["TrustDomain"]).TrustDomain.NAVIGATION_TRUST,
-                        entity_id="nav.primary.seed",
-                        observed_at=_now(),
-                    ),
-                ).record.trust_domain,
+                trust_domain=TrustDomain.NAVIGATION_TRUST,
                 entity_id="nav.primary",
                 observed_at=_now(),
                 cause_codes=(TRUST_CAUSE_NAV_SPOOF_SUSPECTED,),

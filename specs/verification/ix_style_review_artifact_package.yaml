@@ -1,0 +1,35 @@
+document:
+  id: IXS-REVIEW-ARTIFACT-PACKAGES
+  title: IX-Style Review Artifact Packages
+  status: draft
+  version: 0.1.0
+
+required_package_files:
+  - manifest.json
+  - verification_result.json
+  - evidence_package.json
+  - decision_receipt.json
+  - mission_health_snapshot.json
+  - operator_safety_summary.json
+  - evidence_bundle.json
+
+manifest_required_fields:
+  - package_id
+  - schema_version
+  - exported_at
+  - scenario_id
+  - scenario_name
+  - passed
+  - final_outcome
+  - dominant_safety_posture
+  - files
+
+baseline_export_format: json
+stable_filenames: true
+include_machine_and_human_artifacts: true
+
+import_checks:
+  - required_files_present
+  - json_loadable
+  - manifest_fields_present
+  - evidence_bundle_optionally_verifiable

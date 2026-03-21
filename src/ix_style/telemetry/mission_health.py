@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ix_style.core.enums import (
     ArbitrationOutcome,
@@ -17,7 +17,8 @@ from ix_style.core.enums import (
 from ix_style.core.ids import IdFactory
 from ix_style.fdir.models import FaultPriority, FaultRecord
 from ix_style.trust.models import TrustRecord
-from ix_style.verification.models import VerificationResult
+if TYPE_CHECKING:
+    from ix_style.verification.models import VerificationResult
 
 
 _PRIORITY_ORDER: dict[str, int] = {
@@ -118,7 +119,6 @@ class MissionHealthBuilder:
     ) -> ReviewSignificance:
         if (
             dominant_posture is SafetyPosture.SAFE_HOLD
-            or highest_priority == FaultPriority.P1_CONTAINMENT_CRITICAL.value
             or decision_outcome
             in {
                 ArbitrationOutcome.VETO.value,
@@ -258,7 +258,7 @@ class MissionHealthBuilder:
                 for record in records.values()
                 if record.posture_driving
             ),
-            None,
+            "",
         )
 
         return {

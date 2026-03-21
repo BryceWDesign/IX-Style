@@ -1,0 +1,57 @@
+document:
+  id: IXS-TAMPER-EVIDENT-EVIDENCE-BUNDLES
+  title: IX-Style Tamper-Evident Evidence Bundles
+  status: draft
+  version: 0.1.0
+
+canonicalization:
+  format: canonical_json
+  sorted_keys: true
+  compact_separators: true
+  stable_datetime_serialization: true
+  stable_enum_serialization: true
+
+integrity:
+  algorithm: sha256
+  genesis_marker: IX-STYLE-EVIDENCE-GENESIS
+  required_bundle_fields:
+    - bundle_id
+    - schema_version
+    - created_at
+    - scenario_id
+    - integrity
+    - items
+  required_integrity_fields:
+    - algorithm
+    - genesis_marker
+    - head_chain_hash
+    - item_count
+  required_item_fields:
+    - item_index
+    - item_type
+    - item_id
+    - item_hash
+    - previous_chain_hash
+    - chain_hash
+    - data
+
+bundle_item_types:
+  - decision_receipt
+  - trust_transition
+  - fault_transition
+  - mode_transition
+
+verification_checks:
+  - required_fields_present
+  - item_count_matches
+  - item_hash_recomputes
+  - chain_hash_recomputes
+  - previous_chain_hash_is_consistent
+  - final_head_hash_matches
+
+tamper_evidence_detects:
+  - changed_payload_content
+  - reordered_items
+  - deleted_items
+  - inserted_items_without_rechaining
+  - corrupted_chain_metadata

@@ -10,7 +10,8 @@ from typing import Any
 
 from ix_style.core.ids import IdFactory
 from ix_style.messages import EvidenceBundleBuilder
-from ix_style.telemetry import MissionHealthBuilder, SafetySummaryNarrator
+from ix_style.telemetry.mission_health import MissionHealthBuilder
+from ix_style.telemetry.narration import SafetySummaryNarrator
 
 from .models import VerificationResult
 

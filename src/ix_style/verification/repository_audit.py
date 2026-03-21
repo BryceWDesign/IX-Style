@@ -92,8 +92,10 @@ class RepositorySelfAuditor:
             "docs/architecture/IXS-MODE-ALLOCATION-AND-POSTURE-RESOLUTION.md",
             "docs/architecture/IXS-RECOVERY-GATE-AND-AUTHORITY-RESTORATION.md",
             "docs/architecture/IXS-TAMPER-EVIDENT-EVIDENCE-BUNDLES.md",
+            "docs/developer/IXS-DEVELOPER-ONBOARDING-AND-QUICKSTART.md",
             "docs/operations/IXS-MISSION-HEALTH-AND-OPERATOR-SUPPORT.md",
             "docs/operations/IXS-OPERATOR-RATIONALE-AND-SUMMARY-LAYER.md",
+            "docs/review/IXS-REVIEW-WALKTHROUGH.md",
             "docs/verification/IXS-VERIFICATION-AND-TRACEABILITY-STRATEGY.md",
             "docs/verification/IXS-REVIEW-ARTIFACT-PACKAGES.md",
             "docs/verification/IXS-INVARIANT-CHECKS-AND-PROPERTY-LAYER.md",
@@ -103,6 +105,7 @@ class RepositorySelfAuditor:
             "scripts/run_repo_self_audit.py",
             "scripts/run_sample_scenarios.py",
             "scripts/run_invariant_checks.py",
+            "scripts/run_quickstart_flow.py",
         )
 
         missing = tuple(

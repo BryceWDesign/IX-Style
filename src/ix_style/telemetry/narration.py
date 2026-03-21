@@ -76,9 +76,13 @@ class OperatorRationaleFormatter:
             return self._sentence(f"Command was rejected. {rationale}".strip())
 
         if change_type != "NONE":
-            return self._sentence(f"Command change type is {change_type}. {rationale}".strip())
+            return self._sentence(
+                f"Command change type is {change_type}. {rationale}".strip()
+            )
 
-        return self._sentence(rationale or "Decision outcome is available in the evidence record")
+        return self._sentence(
+            rationale or "Decision outcome is available in the evidence record"
+        )
 
     def authority_statement(self, snapshot: dict[str, Any]) -> str:
         """Return a compact authority statement for an operator."""
@@ -121,3 +125,175 @@ class OperatorRationaleFormatter:
         if cleaned.endswith((".", "!", "?")):
             return cleaned
         return f"{cleaned}."
+
+
+@dataclass(slots=True)
+class SafetySummaryNarrator:
+    """Builds compact operator-facing summaries from snapshots and receipts."""
+
+    snapshot_builder: MissionHealthBuilder = field(default_factory=MissionHealthBuilder)
+    formatter: OperatorRationaleFormatter = field(
+        default_factory=OperatorRationaleFormatter
+    )
+
+    def summarize(
+        self,
+        *,
+        snapshot: dict[str, Any],
+        decision_receipt: dict[str, Any],
+    ) -> OperatorSafetySummary:
+        """Return a concise operator-facing summary."""
+        headline = self._headline(snapshot)
+        decision_rationale = self.formatter.decision_rationale(decision_receipt)
+        operational_why = self._operational_why(snapshot)
+        authority_statement = self.formatter.authority_statement(snapshot)
+        recovery_statement = self.formatter.recovery_statement(snapshot)
+        operator_focus = self._operator_focus(snapshot)
+        timeline_markers = self._timeline_markers(snapshot)
+
+        concise_narrative = " ".join(
+            [
+                headline,
+                decision_rationale,
+                operational_why,
+                authority_statement,
+                recovery_statement,
+                operator_focus,
+            ]
+        ).strip()
+
+        return OperatorSafetySummary(
+            headline=headline,
+            decision_rationale=decision_rationale,
+            operational_why=operational_why,
+            authority_statement=authority_statement,
+            recovery_statement=recovery_statement,
+            operator_focus=operator_focus,
+            concise_narrative=concise_narrative,
+            timeline_markers=timeline_markers,
+            review_significance=str(snapshot.get("review_significance", "ROUTINE")),
+        )
+
+    def summarize_verification(self, result: "VerificationResult") -> OperatorSafetySummary:
+        """Convenience wrapper for building a summary from a verification result."""
+        snapshot = self.snapshot_builder.build_from_verification(result)
+        return self.summarize(
+            snapshot=snapshot,
+            decision_receipt=result.evidence_package.decision_receipt,
+        )
+
+    @staticmethod
+    def _headline(snapshot: dict[str, Any]) -> str:
+        posture = str(snapshot.get("dominant_safety_posture", "NOMINAL"))
+        mapping = {
+            "SAFE_HOLD": "SAFE HOLD ACTIVE",
+            "ASSURANCE_DEGRADED": "ASSURANCE DEGRADED",
+            "POWER_DEGRADED": "POWER DEGRADED",
+            "ACTUATION_DEGRADED": "ACTUATION DEGRADED",
+            "NAV_DEGRADED": "NAVIGATION DEGRADED",
+            "SENSOR_DEGRADED": "SENSOR DEGRADED",
+            "COMMS_DEGRADED": "COMMUNICATIONS DEGRADED",
+            "NOMINAL": "NOMINAL BOUNDED OPERATION",
+            "INITIALIZING": "INITIALIZING",
+        }
+        return mapping.get(posture, posture.replace("_", " "))
+
+    @staticmethod
+    def _operational_why(snapshot: dict[str, Any]) -> str:
+        trust_summary = snapshot.get("trust_summary", {})
+        fault_summary = snapshot.get("active_fault_summary", {})
+        resource_summary = snapshot.get("resource_summary", {})
+        recent_events = snapshot.get("recent_events", [])
+
+        parts: list[str] = []
+        posture_driver = trust_summary.get("posture_driving_trust_domain")
+        highest_fault = fault_summary.get("highest_active_fault_priority", "NONE")
+
+        if posture_driver:
+            parts.append(f"Posture is being driven by {posture_driver}.")
+        if highest_fault != "NONE":
+            parts.append(f"Highest active fault priority is {highest_fault}.")
+        if resource_summary.get("survivability_bias_active"):
+            parts.append("Survivability bias is active.")
+        if not parts and recent_events:
+            latest = SafetySummaryNarrator._best_recent_event_summary(recent_events)
+            if latest:
+                parts.append(latest)
+
+        if not parts:
+            parts.append("No stronger degradation driver is currently being summarized.")
+
+        return " ".join(parts)
+
+    @staticmethod
+    def _operator_focus(snapshot: dict[str, Any]) -> str:
+        posture = str(snapshot.get("dominant_safety_posture", "NOMINAL"))
+        mapping = {
+            "SAFE_HOLD": (
+                "Do not resume mission progress until containment exit is explicitly qualified."
+            ),
+            "ASSURANCE_DEGRADED": (
+                "Treat high-risk control paths as suspect until assurance health is restored."
+            ),
+            "POWER_DEGRADED": (
+                "Preserve essential functions before attempting broader recovery."
+            ),
+            "ACTUATION_DEGRADED": (
+                "Reduce maneuver aggressiveness until commanded effect is trustworthy."
+            ),
+            "NAV_DEGRADED": (
+                "Avoid nav-dependent authority expansion until independent trust is restored."
+            ),
+            "SENSOR_DEGRADED": (
+                "Cross-check critical sensing before widening autonomy."
+            ),
+            "COMMS_DEGRADED": (
+                "Do not rely on weak or stale remote intent."
+            ),
+            "NOMINAL": (
+                "Continue bounded operation and monitor for new trust or fault transitions."
+            ),
+            "INITIALIZING": (
+                "Complete readiness checks before enabling broader authority."
+            ),
+        }
+        return mapping.get(
+            posture,
+            "Continue bounded operation while monitoring for new posture drivers.",
+        )
+
+    @staticmethod
+    def _timeline_markers(snapshot: dict[str, Any]) -> tuple[str, ...]:
+        recent_events = snapshot.get("recent_events", [])
+        scored = sorted(
+            recent_events,
+            key=lambda item: (
+                _SIGNIFICANCE_ORDER.get(str(item.get("review_significance", "ROUTINE")), 0),
+                str(item.get("event_time", "")),
+            ),
+            reverse=True,
+        )
+        summaries: list[str] = []
+        for item in scored:
+            summary = " ".join(str(item.get("summary", "")).split())
+            if summary and summary not in summaries:
+                summaries.append(summary)
+            if len(summaries) == 3:
+                break
+        return tuple(summaries)
+
+    @staticmethod
+    def _best_recent_event_summary(recent_events: list[dict[str, Any]]) -> str:
+        scored = sorted(
+            recent_events,
+            key=lambda item: (
+                _SIGNIFICANCE_ORDER.get(str(item.get("review_significance", "ROUTINE")), 0),
+                str(item.get("event_time", "")),
+            ),
+            reverse=True,
+        )
+        for item in scored:
+            summary = " ".join(str(item.get("summary", "")).split())
+            if summary:
+                return summary if summary.endswith(".") else f"{summary}."
+        return ""

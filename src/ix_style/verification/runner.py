@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, is_dataclass
+from dataclasses import asdict, dataclass, field, is_dataclass
 from datetime import datetime
 from typing import Any
 
@@ -28,12 +28,12 @@ from .models import (
 class ScenarioRunner:
     """Runs one IX-Style scenario through trust, FDIR, mode, and decision stages."""
 
-    pipeline: DecisionPipeline = DecisionPipeline()
-    trust_evaluator: BasicTrustEvaluator = BasicTrustEvaluator()
-    fdir_engine: BasicFDIREngine = BasicFDIREngine()
-    mode_allocator: ModeAllocator = ModeAllocator()
-    bundle_builder: EvidenceBundleBuilder = EvidenceBundleBuilder()
-    id_factory: IdFactory = IdFactory()
+    pipeline: DecisionPipeline = field(default_factory=DecisionPipeline)
+    trust_evaluator: BasicTrustEvaluator = field(default_factory=BasicTrustEvaluator)
+    fdir_engine: BasicFDIREngine = field(default_factory=BasicFDIREngine)
+    mode_allocator: ModeAllocator = field(default_factory=ModeAllocator)
+    bundle_builder: EvidenceBundleBuilder = field(default_factory=EvidenceBundleBuilder)
+    id_factory: IdFactory = field(default_factory=IdFactory)
 
     def run(self, scenario: VerificationScenario) -> VerificationResult:
         trust_records: dict[str, TrustRecord] = {}

@@ -88,13 +88,21 @@ class RepositorySelfAuditor:
             "docs/architecture/IXS-FDIR-ARCHITECTURE.md",
             "docs/architecture/IXS-SENSOR-TRUST-AND-ESTIMATION-FRAMEWORK.md",
             "docs/architecture/IXS-SECURE-MESSAGING-AND-EVIDENCE-ARCHITECTURE.md",
+            "docs/architecture/IXS-CONSTRAINT-CATALOG.md",
+            "docs/architecture/IXS-MODE-ALLOCATION-AND-POSTURE-RESOLUTION.md",
+            "docs/architecture/IXS-RECOVERY-GATE-AND-AUTHORITY-RESTORATION.md",
+            "docs/architecture/IXS-TAMPER-EVIDENT-EVIDENCE-BUNDLES.md",
             "docs/operations/IXS-MISSION-HEALTH-AND-OPERATOR-SUPPORT.md",
+            "docs/operations/IXS-OPERATOR-RATIONALE-AND-SUMMARY-LAYER.md",
             "docs/verification/IXS-VERIFICATION-AND-TRACEABILITY-STRATEGY.md",
+            "docs/verification/IXS-REVIEW-ARTIFACT-PACKAGES.md",
+            "docs/verification/IXS-INVARIANT-CHECKS-AND-PROPERTY-LAYER.md",
             "artifacts/traceability/ix_style_traceability_seed.yaml",
             "examples/power_fault_clamp_demo.py",
             "examples/nav_spoof_transition_demo.py",
             "scripts/run_repo_self_audit.py",
             "scripts/run_sample_scenarios.py",
+            "scripts/run_invariant_checks.py",
         )
 
         missing = tuple(

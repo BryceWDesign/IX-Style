@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final, Protocol
 
 from ix_style.core.enums import FaultLifecycleState
@@ -49,7 +49,7 @@ class FDIREngine(Protocol):
 class BasicFDIREngine:
     """Deterministic first-pass FDIR lifecycle engine for IX-Style."""
 
-    id_factory: IdFactory = IdFactory()
+    id_factory: IdFactory = field(default_factory=IdFactory)
 
     def evaluate(
         self,
@@ -59,7 +59,12 @@ class BasicFDIREngine:
         auto_generated_record = record is None
         current = record or self._new_record(signal)
 
-        next_state, rationale = self._determine_next_state(current, signal)
+        if auto_generated_record:
+            next_state = current.lifecycle_state
+            rationale = self._initial_rationale(signal, next_state)
+        else:
+            next_state, rationale = self._determine_next_state(current, signal)
+
         next_priority = self._priority_for(signal, next_state)
         next_mitigations = self._mitigations_for(signal, next_state)
         next_isolation = self._isolation_for(signal, next_state)
@@ -72,7 +77,19 @@ class BasicFDIREngine:
             corroborated_count = current.corroborated_count
 
         transition: FaultTransition | None = None
-        if (
+        if auto_generated_record and signal.anomaly_active:
+            transition = FaultTransition(
+                fault_id=current.fault_id,
+                fault_class=current.fault_class,
+                previous_state=FaultLifecycleState.CLEARED,
+                new_state=next_state,
+                transition_time=signal.observed_at,
+                priority_before=FaultPriority.P4_LOW,
+                priority_after=next_priority,
+                cause_codes=signal.cause_codes,
+                rationale_summary=rationale,
+            )
+        elif (
             next_state != current.lifecycle_state
             or next_priority != current.current_priority
             or current.active_mitigation_set != next_mitigations
@@ -163,6 +180,24 @@ class BasicFDIREngine:
             return FaultLifecycleState.CONFIRMED
 
         return FaultLifecycleState.DETECTED
+
+    def _initial_rationale(
+        self,
+        signal: FDIRSignal,
+        lifecycle_state: FaultLifecycleState,
+    ) -> str:
+        if lifecycle_state is FaultLifecycleState.CLEARED:
+            return signal.rationale_hint or "fault record initialized in cleared state"
+        if lifecycle_state is FaultLifecycleState.CONTAINED:
+            return (
+                "initial abnormal evidence already requires containment and active mitigation"
+            )
+        if lifecycle_state is FaultLifecycleState.MITIGATING:
+            return "initial abnormal evidence entered the lifecycle with mitigation already active"
+        if lifecycle_state is FaultLifecycleState.CONFIRMED:
+            return "initial abnormal evidence was already corroborated at critical severity"
+        return signal.rationale_hint or "initial abnormal evidence opened the fault lifecycle"
+
 
     def _determine_next_state(
         self,

@@ -11,6 +11,7 @@ from ix_style.core.enums import FaultLifecycleState
 from ix_style.core.ids import IdFactory
 from ix_style.fdir import BasicFDIREngine, FaultClass
 from ix_style.fdir.models import FDIREvaluationResult, FaultRecord
+from ix_style.messages import EvidenceBundleBuilder
 from ix_style.modes import ModeAllocationInput, ModeAllocator
 from ix_style.trust import BasicTrustEvaluator
 from ix_style.trust.cause_codes import TRUST_CAUSE_NAV_SPOOF_SUSPECTED
@@ -31,6 +32,7 @@ class ScenarioRunner:
     trust_evaluator: BasicTrustEvaluator = BasicTrustEvaluator()
     fdir_engine: BasicFDIREngine = BasicFDIREngine()
     mode_allocator: ModeAllocator = ModeAllocator()
+    bundle_builder: EvidenceBundleBuilder = EvidenceBundleBuilder()
     id_factory: IdFactory = IdFactory()
 
     def run(self, scenario: VerificationScenario) -> VerificationResult:
@@ -100,6 +102,14 @@ class ScenarioRunner:
         fault_events = self._build_transition_event_records(fault_results)
         mode_events = self._build_transition_event_records([mode_result])
 
+        evidence_bundle = self.bundle_builder.build(
+            scenario_id=scenario.scenario_id,
+            decision_receipt=pipeline_result.receipt_payload.as_dict(),
+            trust_transitions=tuple(trust_events),
+            fault_transitions=tuple(fault_events),
+            mode_transitions=tuple(mode_events),
+        )
+
         evidence_package = EvidencePackage(
             scenario_id=scenario.scenario_id,
             scenario_name=scenario.name,
@@ -129,6 +139,7 @@ class ScenarioRunner:
             trust_transitions=tuple(trust_events),
             fault_transitions=tuple(fault_events),
             mode_transitions=tuple(mode_events),
+            evidence_bundle=evidence_bundle,
             pass_fail_result=passed,
             rationale=(
                 "scenario satisfied all declared expectations"

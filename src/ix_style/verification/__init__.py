@@ -1,6 +1,7 @@
 """Executable verification harness and evidence packaging for IX-Style."""
 
 from .audit import TraceabilityAuditReport, audit_traceability_records, audit_traceability_seed_file
+from .invariants import InvariantCheckResult, InvariantChecker, InvariantReport
 from .models import (
     EvidencePackage,
     VerificationExpectation,
@@ -13,10 +14,14 @@ from .runner import ScenarioRunner
 from .sample_scenarios import (
     build_nav_spoof_transition_scenario,
     build_power_fault_clamp_scenario,
+    build_recovery_deferred_scenario,
 )
 
 __all__ = [
     "EvidencePackage",
+    "InvariantCheckResult",
+    "InvariantChecker",
+    "InvariantReport",
     "JsonArtifactIO",
     "RepositoryAuditReport",
     "RepositorySelfAuditor",
@@ -32,4 +37,5 @@ __all__ = [
     "audit_traceability_seed_file",
     "build_nav_spoof_transition_scenario",
     "build_power_fault_clamp_scenario",
+    "build_recovery_deferred_scenario",
 ]

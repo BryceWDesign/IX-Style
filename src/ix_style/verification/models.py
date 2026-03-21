@@ -93,3 +93,4 @@ class VerificationResult:
     derived_dominant_safety_posture: SafetyPosture = SafetyPosture.NOMINAL
     trust_records: dict[str, TrustRecord] = field(default_factory=dict)
     fault_records: dict[str, FaultRecord] = field(default_factory=dict)
+    pipeline_trace: dict[str, Any] = field(default_factory=dict)

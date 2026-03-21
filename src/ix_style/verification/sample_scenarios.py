@@ -179,3 +179,31 @@ def build_nav_spoof_transition_scenario() -> VerificationScenario:
             required_active_degradation_flags=("nav_spoof_suspected",),
         ),
     )
+
+
+def build_recovery_deferred_scenario() -> VerificationScenario:
+    """Return a reusable recovery-action scenario deferred by weak communications."""
+    return VerificationScenario(
+        scenario_id="EXAMPLE-RECOVERY-DEFERRED-001",
+        name="recovery deferred over weak comms demo",
+        purpose=(
+            "demonstrate that recovery expansion is deferred when remote recovery"
+            " intent arrives under degraded communications"
+        ),
+        linked_requirements=("IXS-SYS-034",),
+        linked_hazards=("IXS-HZ-010",),
+        envelope=_make_control_envelope(
+            command_source=CommandSource.OPERATOR,
+            function_class=FunctionClass.RECOVERY_ACTION,
+            requested_action="request_recovery_review",
+            requested_scope="vehicle.primary",
+            requested_duration_ms=100,
+        ),
+        mission_phase=MissionPhase.ACTIVE,
+        safety_posture=SafetyPosture.COMMS_DEGRADED,
+        active_degradation_flags=("comms_link_intermittent",),
+        expectations=VerificationExpectation(
+            expected_final_outcome=ArbitrationOutcome.DEFER,
+            required_active_degradation_flags=("comms_link_intermittent",),
+        ),
+    )

@@ -68,6 +68,7 @@ class EvidencePackage:
     decision_receipt: dict[str, Any]
     trust_transitions: tuple[dict[str, Any], ...] = ()
     fault_transitions: tuple[dict[str, Any], ...] = ()
+    mode_transitions: tuple[dict[str, Any], ...] = ()
     pass_fail_result: bool = False
     rationale: str = ""
     limitations_or_assumptions: tuple[str, ...] = ()
@@ -88,5 +89,6 @@ class VerificationResult:
     passed: bool
     failures: tuple[str, ...]
     derived_active_degradation_flags: tuple[str, ...]
+    derived_dominant_safety_posture: SafetyPosture = SafetyPosture.NOMINAL
     trust_records: dict[str, TrustRecord] = field(default_factory=dict)
     fault_records: dict[str, FaultRecord] = field(default_factory=dict)

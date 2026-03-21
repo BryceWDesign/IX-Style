@@ -1,0 +1,95 @@
+document:
+  id: IXS-CONSTRAINT-CATALOG
+  title: IX-Style Constraint Catalog
+  status: draft
+  version: 0.1.0
+
+constraint_families:
+  - id: CONTAINMENT
+    description: Preserve bounded posture above mission progress.
+  - id: ASSURANCE
+    description: Narrow or freeze behavior when the assurance layer is weak.
+  - id: RESOURCE
+    description: Preserve essential function under low power or resource margin.
+  - id: NAVIGATION_TRUST
+    description: Bound movement-related behavior when navigation trust weakens.
+  - id: SENSOR_TRUST
+    description: Narrow behavior when critical sensing trust weakens.
+  - id: ACTUATION_CONFIDENCE
+    description: Narrow behavior when commanded effect is uncertain.
+  - id: RECOVERY_CONTROL
+    description: Prevent unsafe or stale recovery-expanding behavior.
+
+outcome_strength_order:
+  - ESCALATE_TO_MODE_CHANGE
+  - VETO
+  - FREEZE
+  - SUBSTITUTE
+  - CLAMP
+  - DEFER
+  - ACCEPT
+
+constraints:
+  - id: IXS-CONSTRAINT-001
+    name: SAFE_HOLD_MISSION_PROGRESS_BLOCK
+    family: CONTAINMENT
+    trigger_summary: >
+      safe-hold posture with mission-progress or override-oriented function class
+    executable_in_reference_guard: true
+    typical_outcome: VETO
+
+  - id: IXS-CONSTRAINT-002
+    name: ASSURANCE_DEGRADED_HIGH_RISK_FREEZE
+    family: ASSURANCE
+    trigger_summary: >
+      assurance-degraded posture with guidance, actuation, resource, or override command
+    executable_in_reference_guard: true
+    typical_outcome: FREEZE
+
+  - id: IXS-CONSTRAINT-003
+    name: POWER_MARGIN_RESOURCE_CLAMP
+    family: RESOURCE
+    trigger_summary: >
+      power_margin_low active for guidance, actuation, or resource configuration
+    executable_in_reference_guard: true
+    typical_outcome: CLAMP
+
+  - id: IXS-CONSTRAINT-004
+    name: NAV_SPOOF_SUSPECTED_MOTION_VETO
+    family: NAVIGATION_TRUST
+    trigger_summary: >
+      nav_spoof_suspected active for guidance or actuation request
+    executable_in_reference_guard: true
+    typical_outcome: VETO
+
+  - id: IXS-CONSTRAINT-005
+    name: NAV_DEGRADED_MOTION_CLAMP
+    family: NAVIGATION_TRUST
+    trigger_summary: >
+      nav_corroboration_lost active for guidance or actuation request
+    executable_in_reference_guard: true
+    typical_outcome: CLAMP
+
+  - id: IXS-CONSTRAINT-006
+    name: SENSOR_TRUST_MOTION_CLAMP
+    family: SENSOR_TRUST
+    trigger_summary: >
+      sensor_trust_low active for guidance or actuation request
+    executable_in_reference_guard: true
+    typical_outcome: CLAMP
+
+  - id: IXS-CONSTRAINT-007
+    name: ACTUATION_UNCERTAIN_MOTION_CLAMP
+    family: ACTUATION_CONFIDENCE
+    trigger_summary: >
+      actuator_response_uncertain active for guidance or actuation request
+    executable_in_reference_guard: true
+    typical_outcome: CLAMP
+
+  - id: IXS-CONSTRAINT-008
+    name: COMMS_DEGRADED_OPERATOR_RECOVERY_DEFER
+    family: RECOVERY_CONTROL
+    trigger_summary: >
+      weak comms or command freshness for operator-issued recovery action
+    executable_in_reference_guard: true
+    typical_outcome: DEFER

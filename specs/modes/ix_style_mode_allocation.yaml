@@ -1,0 +1,104 @@
+document:
+  id: IXS-MODE-ALLOCATION-AND-POSTURE-RESOLUTION
+  title: IX-Style Mode Allocation and Posture Resolution
+  status: draft
+  version: 0.1.0
+
+posture_precedence:
+  - SAFE_HOLD
+  - ASSURANCE_DEGRADED
+  - POWER_DEGRADED
+  - ACTUATION_DEGRADED
+  - NAV_DEGRADED
+  - SENSOR_DEGRADED
+  - COMMS_DEGRADED
+  - NOMINAL
+
+trust_to_posture_mapping:
+  ASSURANCE_CONFIDENCE:
+    degraded_states:
+      - DEGRADED
+      - SUSPECT
+      - UNTRUSTED
+      - UNAVAILABLE
+    posture: ASSURANCE_DEGRADED
+  ACTUATOR_CONFIDENCE:
+    degraded_states:
+      - DEGRADED
+      - SUSPECT
+      - UNTRUSTED
+      - UNAVAILABLE
+    posture: ACTUATION_DEGRADED
+  NAVIGATION_TRUST:
+    degraded_states:
+      - DEGRADED
+      - SUSPECT
+      - UNTRUSTED
+      - UNAVAILABLE
+    posture: NAV_DEGRADED
+  SENSOR_SOURCE_TRUST:
+    degraded_states:
+      - DEGRADED
+      - SUSPECT
+      - UNTRUSTED
+      - UNAVAILABLE
+    posture: SENSOR_DEGRADED
+  DERIVED_STATE_TRUST:
+    degraded_states:
+      - DEGRADED
+      - SUSPECT
+      - UNTRUSTED
+      - UNAVAILABLE
+    posture: SENSOR_DEGRADED
+  MESSAGE_TRUST:
+    degraded_states:
+      - DEGRADED
+      - SUSPECT
+      - UNTRUSTED
+      - UNAVAILABLE
+    posture: COMMS_DEGRADED
+  TIMING_TRUST:
+    degraded_states:
+      - DEGRADED
+      - SUSPECT
+      - UNTRUSTED
+      - UNAVAILABLE
+    posture: COMMS_DEGRADED
+
+fault_to_posture_mapping:
+  ASSURANCE_FAULT:
+    posture: ASSURANCE_DEGRADED
+  POWER_RESOURCE_FAULT:
+    posture: POWER_DEGRADED
+  ACTUATION_FAULT:
+    posture: ACTUATION_DEGRADED
+  NAVIGATION_TRUST_FAULT:
+    posture: NAV_DEGRADED
+  SENSOR_FAULT:
+    posture: SENSOR_DEGRADED
+  COMMUNICATION_FAULT:
+    posture: COMMS_DEGRADED
+
+flag_to_posture_mapping:
+  assurance_guard_unhealthy: ASSURANCE_DEGRADED
+  power_margin_low: POWER_DEGRADED
+  actuator_response_uncertain: ACTUATION_DEGRADED
+  nav_spoof_suspected: NAV_DEGRADED
+  nav_corroboration_lost: NAV_DEGRADED
+  sensor_trust_low: SENSOR_DEGRADED
+  comms_link_intermittent: COMMS_DEGRADED
+  command_freshness_low: COMMS_DEGRADED
+
+safe_hold_triggers:
+  - base_posture_already_safe_hold
+  - containment_critical_fault_in_contained_state
+  - containment_critical_fault_in_latched_state
+
+mode_transition_fields:
+  - previous_posture
+  - new_posture
+  - transition_time
+  - cause_codes
+  - contributing_fault_ids
+  - contributing_trust_record_ids
+  - rationale_summary

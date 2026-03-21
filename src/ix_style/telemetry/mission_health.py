@@ -39,10 +39,7 @@ class MissionHealthBuilder:
     def build_from_verification(self, result: VerificationResult) -> dict[str, Any]:
         """Build a mission-health snapshot from one executed verification result."""
         snapshot_time = _utc_now()
-        dominant_posture = self._derive_dominant_posture(
-            base_posture=result.scenario.safety_posture,
-            active_flags=result.derived_active_degradation_flags,
-        )
+        dominant_posture = result.derived_dominant_safety_posture
         active_fault_records = self._active_fault_records(result.fault_records)
         highest_priority = self._highest_priority(active_fault_records)
         review_significance = self._derive_review_significance(
@@ -103,30 +100,6 @@ class MissionHealthBuilder:
             for record in records.values()
             if record.lifecycle_state is not FaultLifecycleState.CLEARED
         ]
-
-    def _derive_dominant_posture(
-        self,
-        *,
-        base_posture: SafetyPosture,
-        active_flags: tuple[str, ...],
-    ) -> SafetyPosture:
-        if base_posture is not SafetyPosture.NOMINAL:
-            return base_posture
-
-        flags = set(active_flags)
-        if "assurance_guard_unhealthy" in flags:
-            return SafetyPosture.ASSURANCE_DEGRADED
-        if "power_margin_low" in flags:
-            return SafetyPosture.POWER_DEGRADED
-        if "actuator_response_uncertain" in flags:
-            return SafetyPosture.ACTUATION_DEGRADED
-        if "nav_spoof_suspected" in flags or "nav_corroboration_lost" in flags:
-            return SafetyPosture.NAV_DEGRADED
-        if "sensor_trust_low" in flags:
-            return SafetyPosture.SENSOR_DEGRADED
-        if "command_freshness_low" in flags or "comms_link_intermittent" in flags:
-            return SafetyPosture.COMMS_DEGRADED
-        return base_posture
 
     def _highest_priority(self, active_fault_records: list[FaultRecord]) -> str:
         if not active_fault_records:
@@ -414,6 +387,31 @@ class MissionHealthBuilder:
     ) -> list[dict[str, Any]]:
         recent_events: list[dict[str, Any]] = []
         decision_receipt = result.evidence_package.decision_receipt
+
+        for item in result.evidence_package.mode_transitions:
+            payload = item["payload"]
+            recent_events.append(
+                {
+                    "event_id": item["event_id"],
+                    "event_time": item["event_time"],
+                    "event_class": "MODE_EVENT",
+                    "event_type": "mode.transition",
+                    "review_significance": (
+                        ReviewSignificance.HIGH.value
+                        if payload["new_posture"] != SafetyPosture.NOMINAL.value
+                        else ReviewSignificance.IMPORTANT.value
+                    ),
+                    "summary": item["summary"],
+                    "affected_scope": payload["new_posture"],
+                    "related_fault_ids": payload["contributing_fault_ids"],
+                    "related_trust_record_ids": payload["contributing_trust_record_ids"],
+                    "resulting_safety_posture": payload["new_posture"],
+                    "resulting_authority_implication": self._authority_implication(
+                        dominant_posture
+                    ),
+                    "linked_evidence_id": decision_receipt["decision_id"],
+                }
+            )
 
         for item in result.evidence_package.trust_transitions:
             payload = item["payload"]

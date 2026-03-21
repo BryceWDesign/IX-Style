@@ -1,0 +1,51 @@
+document:
+  id: IXS-RECOVERY-GATE-AND-AUTHORITY-RESTORATION
+  title: IX-Style Recovery Gate and Authority Restoration Qualification
+  status: draft
+  version: 0.1.0
+
+recovery_gate_statuses:
+  - NOT_APPLICABLE
+  - PASSED
+  - FAILED
+  - DEFERRED
+
+recovery_expanding_function_classes:
+  - RECOVERY_ACTION
+
+blocking_active_degradation_flags:
+  - assurance_guard_unhealthy
+  - power_margin_low
+  - actuator_response_uncertain
+  - nav_spoof_suspected
+  - nav_corroboration_lost
+  - sensor_trust_low
+
+deferral_active_degradation_flags:
+  - comms_link_intermittent
+  - command_freshness_low
+
+blocking_fault_lifecycle_states:
+  - CONTAINED
+  - LATCHED
+  - MITIGATING
+  - CONFIRMED
+  - ISOLATING
+  - ISOLATED
+
+blocking_fault_priorities:
+  - P1_CONTAINMENT_CRITICAL
+  - P2_HIGH
+
+posture_driving_trust_states:
+  - DEGRADED
+  - SUSPECT
+  - UNTRUSTED
+  - UNAVAILABLE
+
+required_decision_fields:
+  - recovery_gate_status
+  - blocking_fault_ids
+  - blocking_trust_record_ids
+  - rationale_summary
+  - allow_progression

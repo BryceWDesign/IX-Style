@@ -34,6 +34,37 @@ class GuardContext:
 
 
 @dataclass(slots=True, frozen=True)
+class ConstraintMatch:
+    """One triggered runtime-assurance constraint."""
+
+    constraint_id: str
+    outcome: ArbitrationOutcome
+    rationale_summary: str
+    policy_evaluation_result: str
+    final_authoritative_source: CommandSource = CommandSource.SAFETY_SUPERVISOR
+    mode_escalation_requested: bool = False
+    resulting_mode_target: SafetyPosture | None = None
+    command_delta: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if not self.constraint_id.strip():
+            raise ValueError("constraint_id must not be empty")
+        if not self.rationale_summary.strip():
+            raise ValueError("rationale_summary must not be empty")
+        if not self.policy_evaluation_result.strip():
+            raise ValueError("policy_evaluation_result must not be empty")
+
+
+@dataclass(slots=True, frozen=True)
+class ConstraintEvaluation:
+    """Aggregated result of evaluating the constraint catalog."""
+
+    matches: tuple[ConstraintMatch, ...] = ()
+    selected_match: ConstraintMatch | None = None
+
+
+@dataclass(slots=True, frozen=True)
 class GuardDecision:
     """Outcome of the guard stage after authority has allowed a candidate through."""
 

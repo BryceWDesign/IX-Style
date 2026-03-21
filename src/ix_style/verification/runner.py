@@ -89,6 +89,27 @@ class ScenarioRunner:
             )
         )
 
+        pipeline_trace = {
+            "recovery_decision_present": pipeline_result.recovery_decision is not None,
+            "recovery_gate_status": (
+                pipeline_result.recovery_decision.gate_status.value
+                if pipeline_result.recovery_decision is not None
+                else "NOT_APPLICABLE"
+            ),
+            "authority_decision_present": pipeline_result.authority_decision is not None,
+            "authority_outcome": (
+                pipeline_result.authority_decision.outcome.value
+                if pipeline_result.authority_decision is not None
+                else None
+            ),
+            "guard_decision_present": pipeline_result.guard_decision is not None,
+            "guard_outcome": (
+                pipeline_result.guard_decision.outcome.value
+                if pipeline_result.guard_decision is not None
+                else None
+            ),
+        }
+
         failures = self._evaluate_expectations(
             scenario=scenario,
             pipeline_result=pipeline_result,
@@ -134,6 +155,7 @@ class ScenarioRunner:
                 "fault_transition_count": len(fault_events),
                 "mode_transition_count": len(mode_events),
                 "related_fault_ids": list(related_fault_ids),
+                "pipeline_trace": pipeline_trace,
             },
             decision_receipt=pipeline_result.receipt_payload.as_dict(),
             trust_transitions=tuple(trust_events),
@@ -158,6 +180,7 @@ class ScenarioRunner:
             derived_dominant_safety_posture=mode_result.dominant_posture,
             trust_records=trust_records,
             fault_records=fault_records,
+            pipeline_trace=pipeline_trace,
         )
 
     @staticmethod

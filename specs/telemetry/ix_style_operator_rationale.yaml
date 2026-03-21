@@ -1,0 +1,42 @@
+document:
+  id: IXS-OPERATOR-RATIONALE-AND-SUMMARY-LAYER
+  title: IX-Style Operator Rationale and Safety Summary Layer
+  status: draft
+  version: 0.1.0
+
+required_summary_fields:
+  - headline
+  - decision_rationale
+  - operational_why
+  - authority_statement
+  - recovery_statement
+  - operator_focus
+  - concise_narrative
+  - timeline_markers
+  - review_significance
+
+headline_mapping:
+  SAFE_HOLD: SAFE HOLD ACTIVE
+  ASSURANCE_DEGRADED: ASSURANCE DEGRADED
+  POWER_DEGRADED: POWER DEGRADED
+  ACTUATION_DEGRADED: ACTUATION DEGRADED
+  NAV_DEGRADED: NAVIGATION DEGRADED
+  SENSOR_DEGRADED: SENSOR DEGRADED
+  COMMS_DEGRADED: COMMUNICATIONS DEGRADED
+  NOMINAL: NOMINAL BOUNDED OPERATION
+  INITIALIZING: INITIALIZING
+
+operator_focus_hints:
+  SAFE_HOLD: Do not resume mission progress until containment exit is explicitly qualified.
+  ASSURANCE_DEGRADED: Treat high-risk control paths as suspect until assurance health is restored.
+  POWER_DEGRADED: Preserve essential functions before attempting broader recovery.
+  ACTUATION_DEGRADED: Reduce maneuver aggressiveness until commanded effect is trustworthy.
+  NAV_DEGRADED: Avoid nav-dependent authority expansion until independent trust is restored.
+  SENSOR_DEGRADED: Cross-check critical sensing before widening autonomy.
+  COMMS_DEGRADED: Do not rely on weak or stale remote intent.
+  NOMINAL: Continue bounded operation and monitor for new trust or fault transitions.
+  INITIALIZING: Complete readiness checks before enabling broader authority.
+
+timeline_marker_limit: 3
+stable_wording: true
+must_remain_grounded_in_structured_state: true

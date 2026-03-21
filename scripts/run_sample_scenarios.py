@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 from ix_style.messages import MISSION_HEALTH_SNAPSHOT_SCHEMA, SchemaValidator
-from ix_style.telemetry import MissionHealthBuilder
+from ix_style.telemetry import MissionHealthBuilder, SafetySummaryNarrator
 from ix_style.verification import (
     ScenarioRunner,
     build_nav_spoof_transition_scenario,
@@ -15,9 +15,14 @@ from ix_style.verification import (
 def _run_one(name: str, scenario: Any, validator: SchemaValidator) -> dict[str, Any]:
     runner = ScenarioRunner()
     snapshot_builder = MissionHealthBuilder()
+    narrator = SafetySummaryNarrator()
 
     result = runner.run(scenario)
     snapshot = snapshot_builder.build_from_verification(result)
+    summary = narrator.summarize(
+        snapshot=snapshot,
+        decision_receipt=result.evidence_package.decision_receipt,
+    )
     schema_errors = validator.validate(MISSION_HEALTH_SNAPSHOT_SCHEMA, snapshot)
 
     return {
@@ -29,6 +34,7 @@ def _run_one(name: str, scenario: Any, validator: SchemaValidator) -> dict[str, 
         "decision_outcome": result.evidence_package.decision_receipt["final_outcome"],
         "dominant_safety_posture": snapshot["dominant_safety_posture"],
         "review_significance": snapshot["review_significance"],
+        "operator_summary": summary.as_dict(),
     }
 
 

@@ -7,15 +7,25 @@ from .models import (
     VerificationResult,
     VerificationScenario,
 )
+from .repository_audit import RepositoryAuditReport, RepositorySelfAuditor, SelfAuditCheck
 from .runner import ScenarioRunner
+from .sample_scenarios import (
+    build_nav_spoof_transition_scenario,
+    build_power_fault_clamp_scenario,
+)
 
 __all__ = [
     "EvidencePackage",
+    "RepositoryAuditReport",
+    "RepositorySelfAuditor",
     "ScenarioRunner",
+    "SelfAuditCheck",
     "TraceabilityAuditReport",
     "VerificationExpectation",
     "VerificationResult",
     "VerificationScenario",
     "audit_traceability_records",
     "audit_traceability_seed_file",
+    "build_nav_spoof_transition_scenario",
+    "build_power_fault_clamp_scenario",
 ]

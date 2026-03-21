@@ -69,6 +69,7 @@ class EvidencePackage:
     trust_transitions: tuple[dict[str, Any], ...] = ()
     fault_transitions: tuple[dict[str, Any], ...] = ()
     mode_transitions: tuple[dict[str, Any], ...] = ()
+    evidence_bundle: dict[str, Any] = field(default_factory=dict)
     pass_fail_result: bool = False
     rationale: str = ""
     limitations_or_assumptions: tuple[str, ...] = ()

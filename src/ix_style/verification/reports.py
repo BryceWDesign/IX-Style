@@ -93,6 +93,7 @@ class ReviewArtifactBuilder:
             "failures": list(result.failures),
             "derived_active_degradation_flags": list(result.derived_active_degradation_flags),
             "derived_dominant_safety_posture": result.derived_dominant_safety_posture.value,
+            "pipeline_trace": _serialize(result.pipeline_trace),
         }
 
         manifest = {

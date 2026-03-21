@@ -28,15 +28,23 @@ def utc_now() -> datetime:
 def _primitive(value: Any) -> Any:
     """Convert dataclasses, enums, and datetimes into JSON-friendly primitives."""
     if is_dataclass(value):
-        return {key: _primitive(item) for key, item in asdict(value).items()}
+        return {
+            key: _primitive(item)
+            for key, item in asdict(value).items()
+            if item is not None
+        }
     if isinstance(value, datetime):
         return value.isoformat()
     if hasattr(value, "value"):
         return value.value
     if isinstance(value, list):
-        return [_primitive(item) for item in value]
+        return [_primitive(item) for item in value if item is not None]
     if isinstance(value, dict):
-        return {key: _primitive(item) for key, item in value.items()}
+        return {
+            key: _primitive(item)
+            for key, item in value.items()
+            if item is not None
+        }
     return value
 
 

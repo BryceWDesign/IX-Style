@@ -70,11 +70,17 @@ class BasicRecoveryGateEngine:
     def evaluate(self, context: RecoveryGateContext) -> RecoveryGateDecision:
         payload = context.control_payload()
 
-        if payload.function_class is not FunctionClass.RECOVERY_ACTION:
+        if (
+            payload.function_class is not FunctionClass.RECOVERY_ACTION
+            or context.envelope.message_type != "control.recovery_action_request"
+        ):
             return RecoveryGateDecision(
                 gate_status=RecoveryGateStatus.NOT_APPLICABLE,
                 allow_progression=True,
-                rationale_summary="recovery gate is not applicable to non-recovery actions",
+                rationale_summary=(
+                    "recovery gate is not applicable unless the envelope explicitly carries"
+                    " a recovery-action request"
+                ),
             )
 
         flags = set(context.active_degradation_flags)
